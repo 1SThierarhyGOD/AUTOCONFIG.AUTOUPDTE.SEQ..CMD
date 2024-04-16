@@ -36,6 +36,9 @@ public partial class Resources : ComponentBase, IAsyncDisposable
     [Inject]
     public required IJSRuntime JS { get; init; }
 
+    [Parameter, EditorRequired]
+    public required ResourceViewKind ActiveView { get; set; }
+
     private ResourceViewModel? SelectedResource { get; set; }
 
     private readonly CancellationTokenSource _watchTaskCancellationTokenSource = new();
@@ -187,6 +190,14 @@ public partial class Resources : ComponentBase, IAsyncDisposable
                     await InvokeAsync(StateHasChanged);
                 }
             });
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("initializeResourcesGraph");
         }
     }
 
@@ -374,6 +385,30 @@ public partial class Resources : ComponentBase, IAsyncDisposable
     private static List<DisplayedEndpoint> GetEndpoints(ResourceViewModel resource)
     {
         return ResourceEndpointHelpers.GetEndpoints(resource, includeInteralUrls: false);
+    }
+
+    private Task OnTabChangeAsync(FluentTab newTab)
+    {
+        var id = newTab.Id?.Substring("tab-".Length);
+
+        if (id is null
+            || !Enum.TryParse(typeof(ResourceViewKind), id, out var o)
+            || o is not ResourceViewKind viewKind)
+        {
+            return Task.CompletedTask;
+        }
+
+        ActiveView = viewKind;
+
+        return Task.CompletedTask;
+
+        //return OnViewChangedAsync(viewKind);
+    }
+
+    public enum ResourceViewKind
+    {
+        Table,
+        Graph
     }
 
     public async ValueTask DisposeAsync()

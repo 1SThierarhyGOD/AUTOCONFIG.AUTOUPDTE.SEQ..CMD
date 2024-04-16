@@ -346,7 +346,7 @@ function isInputElement(element, isRoot, isShadowRoot) {
     return false;
 }
 
-window.registerGlobalKeydownListener = function(shortcutManager) {
+window.registerGlobalKeydownListener = function (shortcutManager) {
     function hasNoModifiers(keyboardEvent) {
         return !keyboardEvent.altKey && !keyboardEvent.ctrlKey && !keyboardEvent.metaKey && !keyboardEvent.shiftKey;
     }
@@ -417,21 +417,222 @@ window.registerGlobalKeydownListener = function(shortcutManager) {
     return {
         keydownListener: keydownListener,
     }
-}
+};
 
 window.unregisterGlobalKeydownListener = function (keydownListener) {
     window.document.removeEventListener('keydown', keydownListener);
-}
+};
 
 window.getBrowserTimeZone = function () {
     const options = Intl.DateTimeFormat().resolvedOptions();
 
     return options.timeZone;
-}
+};
 
-window.focusElement = function(selector) {
+window.focusElement = function (selector) {
     const element = document.getElementById(selector);
     if (element) {
         element.focus();
     }
-}
+};
+
+window.initializeResourcesGraph = function () {
+    var g = new ResourceGraph();
+    g.resize();
+
+    const observer = new ResizeObserver(function () {
+        g.resize();
+    });
+
+    for (const child of document.getElementsByClassName('resources-summary-layout')) {
+        observer.observe(child);
+    }
+};
+
+class ResourceGraph {
+    constructor() {
+        this.nodes = [
+            { id: "mammal", group: 0, label: "Mammals", level: 1 },
+            { id: "dog", group: 0, label: "Dogs", level: 2 },
+            { id: "cat", group: 0, label: "Cats", level: 2 },
+            { id: "fox", group: 0, label: "Foxes", level: 2 },
+            { id: "elk", group: 0, label: "Elk", level: 2 },
+            { id: "insect", group: 1, label: "Insects", level: 1 },
+            { id: "ant", group: 1, label: "Ants", level: 2 },
+            { id: "bee", group: 1, label: "Bees", level: 2 },
+            { id: "fish", group: 2, label: "Fish", level: 1 },
+            { id: "carp", group: 2, label: "Carp", level: 2 },
+            { id: "pike", group: 2, label: "Pikes", level: 2 }
+        ];
+
+        this.links = [
+            { target: "mammal", source: "dog", strength: 0.7 },
+            { target: "mammal", source: "cat", strength: 0.7 },
+            { target: "mammal", source: "fox", strength: 0.7 },
+            { target: "mammal", source: "elk", strength: 0.7 },
+            { target: "insect", source: "ant", strength: 0.7 },
+            { target: "insect", source: "bee", strength: 0.7 },
+            { target: "fish", source: "carp", strength: 0.7 },
+            { target: "fish", source: "pike", strength: 0.7 },
+            { target: "cat", source: "elk", strength: 0.1 },
+            { target: "carp", source: "ant", strength: 0.1 },
+            { target: "elk", source: "bee", strength: 0.1 },
+            { target: "dog", source: "cat", strength: 0.1 },
+            { target: "fox", source: "ant", strength: 0.1 },
+            { target: "pike", source: "cat", strength: 0.1 }
+        ];
+
+        this.width = window.innerWidth - 400;
+        this.height = 500;
+
+        this.svg = d3.select('.resource-graph');
+        //this.svg.attr('width', this.width).attr('height', this.height);
+
+        // simulation setup with all forces
+        this.linkForce = d3
+            .forceLink()
+            .id(function (link) { return link.id })
+            .strength(function (link) { return 0.01 });
+
+        this.simulation = d3
+            .forceSimulation()
+            .force('link', this.linkForce)
+            .force('charge', d3.forceManyBody().strength(-120))
+            .force("x", d3.forceX().strength(0.01))
+            .force("y", d3.forceY().strength(0.01));
+
+        this.dragDrop = d3.drag().on('start', (event) => {
+            if (!event.active) {
+                this.simulation.alphaTarget(0.3).restart();
+            }
+            event.subject.fx = event.subject.x;
+            event.subject.fy = event.subject.y;
+        }).on('drag', (event) => {
+            event.subject.fx = event.x;
+            event.subject.fy = event.y;
+        }).on('end', (event) => {
+            if (!event.active) {
+                this.simulation.alphaTarget(0);
+            }
+            event.subject.fx = null;
+            event.subject.fy = null;
+        })
+
+        this.svg.append("defs").selectAll("marker")
+            .data(this.nodes)
+            .join("marker")
+            .attr("id", d => `arrow-${d.id}`)
+            .attr("viewBox", "0 -5 10 10")
+            .attr("refX", 38)
+            .attr("refY", 0)
+            .attr("markerWidth", 6)
+            .attr("markerHeight", 6)
+            .attr("orient", "auto")
+            .append("path")
+            .attr("fill", this.getNodeColor)
+            .attr("d", 'M0,-5L10,0L0,5');
+
+        this.linkElements = this.svg.append("g")
+            .attr("class", "links")
+            .selectAll("line")
+            .data(this.links)
+            .enter().append("line")
+            .attr("stroke-width", 1)
+            .attr("stroke", "rgba(50, 50, 50, 0.2)")
+            .attr("marker-end", d => `url(${new URL(`#arrow-${d.target}`, location)})`);
+
+        this.nodeElements = this.svg.append("g")
+            .attr("class", "nodes")
+            .selectAll("circle")
+            .data(this.nodes)
+            .enter().append("circle")
+            .attr("r", 15)
+            .attr("fill", this.getNodeColor)
+            .call(this.dragDrop)
+            .on('click', this.selectNode);
+
+        this.textElements = this.svg.append("g")
+            .attr("class", "texts")
+            .selectAll("text")
+            .data(this.nodes)
+            .enter().append("text")
+            .text(function (node) { return node.label })
+            .attr("font-size", 15)
+            .attr("text-anchor", "middle")
+            .attr("dy", 30)
+            .call(this.dragDrop)
+            .on('click', this.selectNode);
+
+        this.simulation.nodes(this.nodes).on('tick', () => {
+            this.nodeElements
+                .attr('cx', function (node) { return node.x })
+                .attr('cy', function (node) { return node.y });
+            this.textElements
+                .attr('x', function (node) { return node.x })
+                .attr('y', function (node) { return node.y });
+            this.linkElements
+                .attr('x1', function (link) { return link.source.x })
+                .attr('y1', function (link) { return link.source.y })
+                .attr('x2', function (link) { return link.target.x })
+                .attr('y2', function (link) { return link.target.y });
+        })
+
+        this.simulation.force("link").links(this.links);
+    }
+
+    resize() {
+        var container = document.getElementsByClassName("resources-summary-layout")[0];
+        var width = container.clientWidth;
+        var height = Math.max(container.clientHeight - 100, 0);
+        this.svg.attr("viewBox", [-width / 2, -height / 2, width, height]);
+    }
+
+    getNeighbors(node) {
+        return this.links.reduce(function (neighbors, link) {
+            if (link.target.id === node.id) {
+                neighbors.push(link.source.id)
+            } else if (link.source.id === node.id) {
+                neighbors.push(link.target.id)
+            }
+            return neighbors
+        },
+            [node.id]);
+    }
+
+    isNeighborLink(node, link) {
+        return link.target.id === node.id || link.source.id === node.id
+    }
+
+
+    getNodeColor(node, neighbors) {
+        if (Array.isArray(neighbors) && neighbors.indexOf(node.id) > -1) {
+            return node.level === 1 ? 'blue' : 'green'
+        }
+
+        return node.level === 1 ? 'red' : 'gray'
+    }
+
+    getLinkColor(node, link) {
+        return this.isNeighborLink(node, link) ? 'green' : '#E5E5E5'
+    }
+
+    getTextColor(node, neighbors) {
+        return Array.isArray(neighbors) && neighbors.indexOf(node.id) > -1 ? 'green' : 'black'
+    }
+
+    selectNode = (event) => {
+        var selectedNode = event.target.__data__;
+        var neighbors = this.getNeighbors(selectedNode)
+
+        // we modify the styles to highlight selected nodes
+        this.nodeElements.attr('fill', (node) => {
+            return this.getNodeColor(node, neighbors);
+        })
+        this.textElements.attr('fill', (node) => {
+            return this.getTextColor(node, neighbors);
+        })
+        this.linkElements.attr('stroke', (link) => {
+            return this.getLinkColor(selectedNode, link)
+        })
+    }
+};

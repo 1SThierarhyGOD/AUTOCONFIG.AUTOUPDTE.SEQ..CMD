@@ -45,3 +45,20 @@
 ::deep fluent-data-grid {
     overflow-x: clip;
 }
+
+::deep .resources-summary-layout {
+    display: grid;
+    grid-template-rows: 1fr auto;
+    height: 100%;
+    width: 100%;
+    grid-template-areas:
+        "main"
+        "foot";
+}
+
+::deep .resources-grid-container {
+    overflow: auto;
+    height: 100%;
+    width: 100%;
+    display: grid;
+}
