@@ -11,12 +11,13 @@ using Aspire.Dashboard.Otlp.Storage;
 using Aspire.Dashboard.Resources;
 using Aspire.Dashboard.Utils;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using Microsoft.FluentUI.AspNetCore.Components;
 using Microsoft.JSInterop;
 
 namespace Aspire.Dashboard.Components.Pages;
 
-public partial class Resources : ComponentBase, IAsyncDisposable
+public partial class Resources : ComponentBase, IAsyncDisposable, IPageWithSessionAndUrlState<Resources.ResourcesViewModel, Resources.ResourcesPageState>
 {
     private Subscription? _logsSubscription;
     private Dictionary<OtlpApplication, int>? _applicationUnviewedErrorCounts;
@@ -35,9 +36,16 @@ public partial class Resources : ComponentBase, IAsyncDisposable
     public required BrowserTimeProvider TimeProvider { get; init; }
     [Inject]
     public required IJSRuntime JS { get; init; }
+    [Inject]
+    public required ProtectedSessionStorage SessionStorage { get; init; }
 
-    [Parameter, EditorRequired]
-    public required ResourceViewKind ActiveView { get; set; }
+    public string BasePath => DashboardUrls.ResourcesBasePath;
+    public string SessionStorageKey => "Resources_PageState";
+    public ResourcesViewModel PageViewModel { get; set; } = null!;
+
+    [Parameter]
+    [SupplyParameterFromQuery(Name = "view")]
+    public string? ViewKindName { get; set; }
 
     private ResourceViewModel? SelectedResource { get; set; }
 
@@ -130,6 +138,11 @@ public partial class Resources : ComponentBase, IAsyncDisposable
 
     protected override async Task OnInitializedAsync()
     {
+        PageViewModel = new ResourcesViewModel
+        {
+            SelectedViewKind = null
+        };
+
         _applicationUnviewedErrorCounts = TelemetryRepository.GetApplicationUnviewedErrorLogsCount();
 
         if (DashboardClient.IsEnabled)
@@ -187,21 +200,39 @@ public partial class Resources : ComponentBase, IAsyncDisposable
                         }
                     }
 
-                    var resources = _resourceByName.Values.Select(r => new ResourceDto
-                    {
-                        Name = r.Name,
-                        ResourceType = r.ResourceType,
-                        DisplayName = r.DisplayName,
-                        Uid = r.Uid,
-                        State = r.State,
-                        StateStyle = r.StateStyle
-                    }).ToList();
-                    await JS.InvokeVoidAsync("updateResourcesGraph", resources);
-
+                    await UpdateResourceGraphAsync();
                     await InvokeAsync(StateHasChanged);
                 }
             });
         }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("initializeResourcesGraph");
+            await UpdateResourceGraphAsync();
+        }
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await this.InitializeViewModelAsync();
+    }
+
+    private async Task UpdateResourceGraphAsync()
+    {
+        var resources = _resourceByName.Values.Select(r => new ResourceDto
+        {
+            Name = r.Name,
+            ResourceType = r.ResourceType,
+            DisplayName = r.DisplayName,
+            Uid = r.Uid,
+            State = r.State,
+            StateStyle = r.StateStyle
+        }).ToList();
+        await JS.InvokeVoidAsync("updateResourcesGraph", resources);
     }
 
     private class ResourceDto
@@ -212,14 +243,6 @@ public partial class Resources : ComponentBase, IAsyncDisposable
         public required string Uid { get; init; }
         public required string? State { get; init; }
         public required string? StateStyle { get; init; }
-    }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            await JS.InvokeVoidAsync("initializeResourcesGraph");
-        }
     }
 
     private bool ApplicationErrorCountsChanged(Dictionary<OtlpApplication, int> newApplicationUnviewedErrorCounts)
@@ -419,11 +442,23 @@ public partial class Resources : ComponentBase, IAsyncDisposable
             return Task.CompletedTask;
         }
 
-        ActiveView = viewKind;
+        return OnViewChangedAsync(viewKind);
+    }
 
-        return Task.CompletedTask;
+    private async Task OnViewChangedAsync(ResourceViewKind newView)
+    {
+        PageViewModel.SelectedViewKind = newView;
+        await this.AfterViewModelChangedAsync();
+    }
 
-        //return OnViewChangedAsync(viewKind);
+    public sealed class ResourcesViewModel
+    {
+        public required ResourceViewKind? SelectedViewKind { get; set; }
+    }
+
+    public class ResourcesPageState
+    {
+        public required string? ViewKind { get; set; }
     }
 
     public enum ResourceViewKind
@@ -439,5 +474,23 @@ public partial class Resources : ComponentBase, IAsyncDisposable
         _logsSubscription?.Dispose();
 
         await TaskHelpers.WaitIgnoreCancelAsync(_resourceSubscriptionTask);
+    }
+
+    public void UpdateViewModelFromQuery(ResourcesViewModel viewModel)
+    {
+        viewModel.SelectedViewKind = Enum.TryParse(typeof(ResourceViewKind), ViewKindName, out var view) && view is ResourceViewKind vk ? vk : null;
+    }
+
+    public string GetUrlFromSerializableViewModel(ResourcesPageState serializable)
+    {
+        return DashboardUrls.ResourcesUrl(view: serializable.ViewKind);
+    }
+
+    public ResourcesPageState ConvertViewModelToSerializable()
+    {
+        return new ResourcesPageState
+        {
+            ViewKind = PageViewModel.SelectedViewKind?.ToString()
+        };
     }
 }

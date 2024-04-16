@@ -54,7 +54,7 @@
                         ViewKey="ResourcesList">
         <Summary>
             <div class="resources-summary-layout">
-            <FluentTabs Class="resource-tabs" ActiveTabId="@($"tab-{ActiveView}")" OnTabChange="@OnTabChangeAsync">
+            <FluentTabs Class="resource-tabs" ActiveTabId="@($"tab-{PageViewModel.SelectedViewKind ?? ResourceViewKind.Table}")" OnTabChange="@OnTabChangeAsync">
                 <FluentTab LabelClass="tab-label"
                            Id="@($"tab-{ResourceViewKind.Table}")"
                            Label="@ControlsStringsLoc[nameof(ControlsStrings.ChartContainerTableTab)]"

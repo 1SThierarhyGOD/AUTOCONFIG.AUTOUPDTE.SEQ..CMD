@@ -8,14 +8,20 @@ namespace Aspire.Dashboard.Utils;
 
 internal static class DashboardUrls
 {
+    public const string ResourcesBasePath = "";
     public const string ConsoleLogBasePath = "consolelogs";
     public const string MetricsBasePath = "metrics";
     public const string StructuredLogsBasePath = "structuredlogs";
     public const string TracesBasePath = "traces";
 
-    public static string ResourcesUrl()
+    public static string ResourcesUrl(string? view = null)
     {
-        return "/";
+        var url = $"/{ResourcesBasePath}";
+        if (view != null)
+        {
+            url = QueryHelpers.AddQueryString(url, "view", view);
+        }
+        return url;
     }
 
     public static string ConsoleLogsUrl(string? resource = null)

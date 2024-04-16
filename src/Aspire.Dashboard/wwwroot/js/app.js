@@ -459,6 +459,20 @@ window.updateResourcesGraph = function (resources) {
 
 class ResourceGraph {
     constructor() {
+        this.backNodes = [
+            { id: "mammal", group: 0, label: "Mammals", level: 1 },
+            { id: "dog", group: 0, label: "Dogs", level: 2 },
+            { id: "cat", group: 0, label: "Cats", level: 2 },
+            { id: "fox", group: 0, label: "Foxes", level: 2 },
+            { id: "elk", group: 0, label: "Elk", level: 2 },
+            { id: "insect", group: 1, label: "Insects", level: 1 },
+            { id: "ant", group: 1, label: "Ants", level: 2 },
+            { id: "bee", group: 1, label: "Bees", level: 2 },
+            { id: "fish", group: 2, label: "Fish", level: 1 },
+            { id: "carp", group: 2, label: "Carp", level: 2 },
+            { id: "pike", group: 2, label: "Pikes", level: 2 }
+        ];
+
         this.nodes = [
             { id: "mammal", group: 0, label: "Mammals", level: 1 },
             { id: "dog", group: 0, label: "Dogs", level: 2 },
@@ -536,58 +550,15 @@ class ResourceGraph {
             .attr("fill", this.getNodeColor)
             .attr("d", 'M0,-5L10,0L0,5');
 
-        this.linkElements = this.svg.append("g")
-            .attr("class", "links")
-            .selectAll("line")
-            .data(this.links)
-            .enter().append("line")
-            .attr("stroke-width", 1)
-            .attr("stroke", "rgba(50, 50, 50, 0.2)")
-            .attr("marker-end", d => `url(${new URL(`#arrow-${d.target}`, location)})`);
+        this.linkElementsG = this.svg.append("g").attr("class", "links");
+        this.nodeElementsG = this.svg.append("g").attr("class", "nodes");
+        this.textElementsG = this.svg.append("g").attr("class", "texts");
 
-        this.nodeElements = this.svg.append("g")
-            .attr("class", "nodes")
-            .selectAll("circle")
-            .data(this.nodes)
-            .enter().append("circle")
-            .attr("r", 15)
-            .attr("fill", this.getNodeColor)
-            .call(this.dragDrop)
-            .on('click', this.selectNode);
+        //this.updateResources(null);
 
-        this.textElements = this.svg.append("g")
-            .attr("class", "texts")
-            .selectAll("text")
-            .data(this.nodes)
-            .enter().append("text")
-            .text(function (node) { return node.label })
-            .attr("font-size", 15)
-            .attr("text-anchor", "middle")
-            .attr("dy", 30)
-            .call(this.dragDrop)
-            .on('click', this.selectNode);
-
-        this.simulation.nodes(this.nodes).on('tick', () => {
-            this.nodeElements
-                .attr('cx', function (node) { return node.x })
-                .attr('cy', function (node) { return node.y });
-            this.textElements
-                .attr('x', function (node) { return node.x })
-                .attr('y', function (node) { return node.y });
-            this.linkElements
-                .attr('x1', function (link) { return link.source.x })
-                .attr('y1', function (link) { return link.source.y })
-                .attr('x2', function (link) { return link.target.x })
-                .attr('y2', function (link) { return link.target.y });
-        })
-
-        this.simulation.force("link").links(this.links);
-
-        setInterval(() => {
-            for (var i = 0; i < this.nodes.length; i++) {
-                this.nodes[i].label = "Test";
-            }
-        }, 1000);
+        //setInterval(() => {
+        //    this.updateResources(null);
+        //}, 3000);
     }
 
     resize() {
@@ -598,6 +569,108 @@ class ResourceGraph {
     }
 
     updateResources(resources) {
+
+        //var itemCount = Math.floor(Math.random() * this.backNodes.length);
+        //this.nodes = this.backNodes.slice(0, itemCount);
+        this.nodes = this.backNodes;
+
+        // Update nodes
+        this.nodeElements = this.nodeElementsG
+            .selectAll("circle")
+            .data(this.nodes);
+
+        // Remove excess nodes:
+        this.nodeElements
+            .exit()
+            .transition()
+            .attr("opacity", 0)
+            .remove();
+
+        var newNodes = this.nodeElements
+            .enter().append("circle")
+            .attr("opacity", 0)
+            .attr("r", 15)
+            .attr("fill", this.getNodeColor)
+            .call(this.dragDrop)
+            .on('click', this.selectNode);
+
+        newNodes.transition()
+            .attr("opacity", 1);
+
+        this.nodeElements = newNodes.merge(this.nodeElements);
+
+        // Update text
+        this.textElements = this.textElementsG
+            .selectAll("text")
+            .data(this.nodes);
+
+        // Remove excess text:
+        this.textElements
+            .exit()
+            .transition()
+            .attr("opacity", 0)
+            .remove();
+
+        var newText = this.textElements
+            .enter().append("text")
+            .attr("opacity", 0)
+            .text(function (node) { return node.label })
+            .attr("font-size", 15)
+            .attr("text-anchor", "middle")
+            .attr("dy", 30)
+            .call(this.dragDrop)
+            .on('click', this.selectNode);
+
+        newText.transition()
+            .attr("opacity", 1);
+
+        this.textElements = newText.merge(this.textElements);
+
+        // Update links
+        this.linkElements = this.linkElementsG
+            .selectAll("line")
+            .data(this.links);
+
+        this.linkElements
+            .exit()
+            .transition()
+            .attr("opacity", 0)
+            .remove();
+
+        var newLinks = this.linkElements
+            .enter().append("line")
+            .attr("opacity", 0)
+            .attr("stroke-width", 1)
+            .attr("stroke", "rgba(50, 50, 50, 0.2)")
+            .attr("marker-end", d => `url(${new URL(`#arrow-${d.target}`, location)})`);
+
+        newLinks.transition()
+            .attr("opacity", 1);
+
+        this.linkElements = newLinks.merge(this.linkElements);
+
+        this.simulation
+            .nodes(this.nodes)
+            .on('tick', this.onTick);
+
+        this.simulation.force("link").links(this.links);
+        this.simulation.alpha(1).restart();
+   }
+
+    onTick = () => {
+        this.nodeElements
+            .attr('cx', function (node) {
+                return node.x
+            })
+            .attr('cy', function (node) { return node.y });
+        this.textElements
+            .attr('x', function (node) { return node.x })
+            .attr('y', function (node) { return node.y });
+        this.linkElements
+            .attr('x1', function (link) { return link.source.x })
+            .attr('y1', function (link) { return link.source.y })
+            .attr('x2', function (link) { return link.target.x })
+            .attr('y2', function (link) { return link.target.y });
     }
 
     getNeighbors(node) {
