@@ -187,10 +187,31 @@ public partial class Resources : ComponentBase, IAsyncDisposable
                         }
                     }
 
+                    var resources = _resourceByName.Values.Select(r => new ResourceDto
+                    {
+                        Name = r.Name,
+                        ResourceType = r.ResourceType,
+                        DisplayName = r.DisplayName,
+                        Uid = r.Uid,
+                        State = r.State,
+                        StateStyle = r.StateStyle
+                    }).ToList();
+                    await JS.InvokeVoidAsync("updateResourcesGraph", resources);
+
                     await InvokeAsync(StateHasChanged);
                 }
             });
         }
+    }
+
+    private class ResourceDto
+    {
+        public required string Name { get; init; }
+        public required string ResourceType { get; init; }
+        public required string DisplayName { get; init; }
+        public required string Uid { get; init; }
+        public required string? State { get; init; }
+        public required string? StateStyle { get; init; }
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

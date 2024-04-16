@@ -436,16 +436,24 @@ window.focusElement = function (selector) {
     }
 };
 
+let resourceGraph = null;
+
 window.initializeResourcesGraph = function () {
-    var g = new ResourceGraph();
-    g.resize();
+    resourceGraph = new ResourceGraph();
+    resourceGraph.resize();
 
     const observer = new ResizeObserver(function () {
-        g.resize();
+        resourceGraph.resize();
     });
 
     for (const child of document.getElementsByClassName('resources-summary-layout')) {
         observer.observe(child);
+    }
+};
+
+window.updateResourcesGraph = function (resources) {
+    if (resourceGraph) {
+        resourceGraph.updateResources(resources);
     }
 };
 
@@ -482,11 +490,7 @@ class ResourceGraph {
             { target: "pike", source: "cat", strength: 0.1 }
         ];
 
-        this.width = window.innerWidth - 400;
-        this.height = 500;
-
         this.svg = d3.select('.resource-graph');
-        //this.svg.attr('width', this.width).attr('height', this.height);
 
         // simulation setup with all forces
         this.linkForce = d3
@@ -578,6 +582,12 @@ class ResourceGraph {
         })
 
         this.simulation.force("link").links(this.links);
+
+        setInterval(() => {
+            for (var i = 0; i < this.nodes.length; i++) {
+                this.nodes[i].label = "Test";
+            }
+        }, 1000);
     }
 
     resize() {
@@ -585,6 +595,9 @@ class ResourceGraph {
         var width = container.clientWidth;
         var height = Math.max(container.clientHeight - 100, 0);
         this.svg.attr("viewBox", [-width / 2, -height / 2, width, height]);
+    }
+
+    updateResources(resources) {
     }
 
     getNeighbors(node) {
