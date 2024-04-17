@@ -232,6 +232,11 @@ public partial class Resources : ComponentBase, IAsyncDisposable, IPageWithSessi
 
     private async Task UpdateResourceGraphAsync()
     {
+        if (PageViewModel.SelectedViewKind != ResourceViewKind.Graph)
+        {
+            return;
+        }
+
         var activeResources = _resourceByName.Values.Where(Filter).ToList();
         var resources = activeResources.Select(MapDto).ToList();
         await JS.InvokeVoidAsync("updateResourcesGraph", resources);
@@ -254,6 +259,8 @@ public partial class Resources : ComponentBase, IAsyncDisposable, IPageWithSessi
                 }
             }
 
+            var endpoint = GetDisplayedEndpoints(r, out _).FirstOrDefault();
+
             var dto = new ResourceDto
             {
                 Name = r.Name,
@@ -262,7 +269,9 @@ public partial class Resources : ComponentBase, IAsyncDisposable, IPageWithSessi
                 Uid = r.Uid,
                 State = r.State,
                 StateStyle = r.StateStyle,
-                ReferencedNames = resolvedNames.ToImmutableArray()
+                ReferencedNames = resolvedNames.ToImmutableArray(),
+                EndpointUrl = endpoint?.Url,
+                EndpointText = endpoint?.Text ?? endpoint?.Url
             };
 
             return dto;
@@ -294,6 +303,8 @@ public partial class Resources : ComponentBase, IAsyncDisposable, IPageWithSessi
         public required string? State { get; init; }
         public required string? StateStyle { get; init; }
         public required ImmutableArray<string> ReferencedNames { get; init; }
+        public required string? EndpointUrl { get; init; }
+        public required string? EndpointText { get; init; }
     }
 
     private bool ApplicationErrorCountsChanged(Dictionary<OtlpApplication, int> newApplicationUnviewedErrorCounts)
@@ -503,10 +514,8 @@ public partial class Resources : ComponentBase, IAsyncDisposable, IPageWithSessi
 
         if (newView == ResourceViewKind.Graph)
         {
-            // switchToResourcesGraph
-            await JS.InvokeVoidAsync("switchToResourcesGraph");
-
-            //await UpdateResourceGraphAsync();
+            await UpdateResourceGraphAsync();
+            await JS.InvokeVoidAsync("switchToResourcesGraph", SelectedResource?.Name);
         }
     }
 
