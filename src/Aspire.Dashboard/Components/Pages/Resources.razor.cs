@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections.Concurrent;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Globalization;
 using System.Text;
@@ -10,6 +11,7 @@ using Aspire.Dashboard.Otlp.Model;
 using Aspire.Dashboard.Otlp.Storage;
 using Aspire.Dashboard.Resources;
 using Aspire.Dashboard.Utils;
+using Humanizer.Localisation;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using Microsoft.FluentUI.AspNetCore.Components;
@@ -58,6 +60,7 @@ public partial class Resources : ComponentBase, IAsyncDisposable, IPageWithSessi
     private Task? _resourceSubscriptionTask;
     private bool _isLoading = true;
     private string? _elementIdBeforeDetailsViewOpened;
+    private DotNetObjectReference<ResourcesInterop>? _resourcesInteropReference;
 
     public Resources()
     {
@@ -66,7 +69,7 @@ public partial class Resources : ComponentBase, IAsyncDisposable, IPageWithSessi
 
     private bool Filter(ResourceViewModel resource) => _visibleResourceTypes.ContainsKey(resource.ResourceType) && (_filter.Length == 0 || resource.MatchesFilter(_filter)) && resource.State != ResourceStates.HiddenState;
 
-    protected Task OnResourceTypeVisibilityChangedAsync(string resourceType, bool isVisible)
+    protected async Task OnResourceTypeVisibilityChangedAsync(string resourceType, bool isVisible)
     {
         if (isVisible)
         {
@@ -77,12 +80,14 @@ public partial class Resources : ComponentBase, IAsyncDisposable, IPageWithSessi
             _visibleResourceTypes.TryRemove(resourceType, out _);
         }
 
-        return ClearSelectedResourceAsync();
+        await UpdateResourceGraphAsync();
+        await ClearSelectedResourceAsync();
     }
 
-    private Task HandleSearchFilterChangedAsync()
+    private async Task HandleSearchFilterChangedAsync()
     {
-        return ClearSelectedResourceAsync();
+        await UpdateResourceGraphAsync();
+        await ClearSelectedResourceAsync();
     }
 
     private bool? AreAllTypesVisible
@@ -125,6 +130,8 @@ public partial class Resources : ComponentBase, IAsyncDisposable, IPageWithSessi
             {
                 _visibleResourceTypes.Clear();
             }
+
+            _ = UpdateResourceGraphAsync();
         }
     }
 
@@ -211,7 +218,9 @@ public partial class Resources : ComponentBase, IAsyncDisposable, IPageWithSessi
     {
         if (firstRender)
         {
-            await JS.InvokeVoidAsync("initializeResourcesGraph");
+            _resourcesInteropReference = DotNetObjectReference.Create(new ResourcesInterop(this));
+
+            await JS.InvokeVoidAsync("initializeResourcesGraph", _resourcesInteropReference);
             await UpdateResourceGraphAsync();
         }
     }
@@ -223,16 +232,57 @@ public partial class Resources : ComponentBase, IAsyncDisposable, IPageWithSessi
 
     private async Task UpdateResourceGraphAsync()
     {
-        var resources = _resourceByName.Values.Select(r => new ResourceDto
-        {
-            Name = r.Name,
-            ResourceType = r.ResourceType,
-            DisplayName = r.DisplayName,
-            Uid = r.Uid,
-            State = r.State,
-            StateStyle = r.StateStyle
-        }).ToList();
+        var activeResources = _resourceByName.Values.Where(Filter).ToList();
+        var resources = activeResources.Select(MapDto).ToList();
         await JS.InvokeVoidAsync("updateResourcesGraph", resources);
+
+        ResourceDto MapDto(ResourceViewModel r)
+        {
+            var referencedNames = new List<string>();
+            if (r.Environment.SingleOrDefault(e => e.Name == "hack_resource_references") is { } references)
+            {
+                referencedNames = references.Value!.Split(',').ToList();
+            }
+
+            var resolvedNames = new List<string>();
+            for (var i = 0; i < referencedNames.Count; i++)
+            {
+                var name = referencedNames[i];
+                foreach (var targetResource in activeResources.Where(r => string.Equals(r.DisplayName, name, StringComparisons.ResourceName)))
+                {
+                    resolvedNames.Add(targetResource.Name);
+                }
+            }
+
+            var dto = new ResourceDto
+            {
+                Name = r.Name,
+                ResourceType = r.ResourceType,
+                DisplayName = ResourceViewModel.GetResourceName(r, _resourceByName),
+                Uid = r.Uid,
+                State = r.State,
+                StateStyle = r.StateStyle,
+                ReferencedNames = resolvedNames.ToImmutableArray()
+            };
+
+            return dto;
+        }
+    }
+
+    private class ResourcesInterop(Resources resources)
+    {
+        [JSInvokable]
+        public async Task SelectResource(string id)
+        {
+            if (resources._resourceByName.TryGetValue(id, out var resource))
+            {
+                await resources.InvokeAsync(async () =>
+                {
+                    await resources.ShowResourceDetailsAsync(resource, null!);
+                    resources.StateHasChanged();
+                });
+            }
+        }
     }
 
     private class ResourceDto
@@ -243,6 +293,7 @@ public partial class Resources : ComponentBase, IAsyncDisposable, IPageWithSessi
         public required string Uid { get; init; }
         public required string? State { get; init; }
         public required string? StateStyle { get; init; }
+        public required ImmutableArray<string> ReferencedNames { get; init; }
     }
 
     private bool ApplicationErrorCountsChanged(Dictionary<OtlpApplication, int> newApplicationUnviewedErrorCounts)
@@ -449,6 +500,14 @@ public partial class Resources : ComponentBase, IAsyncDisposable, IPageWithSessi
     {
         PageViewModel.SelectedViewKind = newView;
         await this.AfterViewModelChangedAsync();
+
+        if (newView == ResourceViewKind.Graph)
+        {
+            // switchToResourcesGraph
+            await JS.InvokeVoidAsync("switchToResourcesGraph");
+
+            //await UpdateResourceGraphAsync();
+        }
     }
 
     public sealed class ResourcesViewModel
@@ -469,6 +528,7 @@ public partial class Resources : ComponentBase, IAsyncDisposable, IPageWithSessi
 
     public async ValueTask DisposeAsync()
     {
+        _resourcesInteropReference?.Dispose();
         _watchTaskCancellationTokenSource.Cancel();
         _watchTaskCancellationTokenSource.Dispose();
         _logsSubscription?.Dispose();

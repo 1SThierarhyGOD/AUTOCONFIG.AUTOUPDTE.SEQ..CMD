@@ -95,6 +95,7 @@ public static class PostgresBuilderExtensions
                                                  .ExcludeFromManifest();
 
             configureContainer?.Invoke(pgAdminContainerBuilder);
+            ResourceBuilderExtensions.AddReferenceEnvVar(pgAdminContainerBuilder, builder.Resource.Name);
 
             return builder;
         }

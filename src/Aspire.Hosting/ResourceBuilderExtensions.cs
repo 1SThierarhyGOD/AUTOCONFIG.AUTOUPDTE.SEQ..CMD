@@ -110,6 +110,8 @@ public static class ResourceBuilderExtensions
     /// <returns>A resource configured with the environment variable callback.</returns>
     public static IResourceBuilder<T> WithEnvironment<T>(this IResourceBuilder<T> builder, string name, EndpointReference endpointReference) where T : IResourceWithEnvironment
     {
+        AddReferenceEnvVar(builder, endpointReference.Resource.Name);
+
         return builder.WithEnvironment(context =>
         {
             context.EnvironmentVariables[name] = endpointReference;
@@ -274,6 +276,8 @@ public static class ResourceBuilderExtensions
     public static IResourceBuilder<TDestination> WithReference<TDestination>(this IResourceBuilder<TDestination> builder, IResourceBuilder<IResourceWithConnectionString> source, string? connectionName = null, bool optional = false)
         where TDestination : IResourceWithEnvironment
     {
+        AddReferenceEnvVar(builder, source.Resource.Name);
+
         var resource = source.Resource;
         connectionName ??= resource.Name;
 
@@ -296,6 +300,8 @@ public static class ResourceBuilderExtensions
     public static IResourceBuilder<TDestination> WithReference<TDestination>(this IResourceBuilder<TDestination> builder, IResourceBuilder<IResourceWithServiceDiscovery> source)
         where TDestination : IResourceWithEnvironment
     {
+        AddReferenceEnvVar(builder, source.Resource.Name);
+
         ApplyEndpoints(builder, source.Resource);
         return builder;
     }
@@ -336,8 +342,30 @@ public static class ResourceBuilderExtensions
     public static IResourceBuilder<TDestination> WithReference<TDestination>(this IResourceBuilder<TDestination> builder, EndpointReference endpointReference)
         where TDestination : IResourceWithEnvironment
     {
+        AddReferenceEnvVar(builder, endpointReference.Resource.Name);
+
         ApplyEndpoints(builder, endpointReference.Resource, endpointReference.EndpointName);
         return builder;
+    }
+
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+#pragma warning disable RS0016 // Add public types and members to the declared API
+    public static void AddReferenceEnvVar<TDestination>(IResourceBuilder<TDestination> builder, string resourceName) where TDestination : IResourceWithEnvironment
+#pragma warning restore RS0016 // Add public types and members to the declared API
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
+    {
+        builder.WithEnvironment(c =>
+        {
+            if (c.EnvironmentVariables.TryGetValue("hack_resource_references", out var value))
+            {
+                var s = (string)value;
+                c.EnvironmentVariables["hack_resource_references"] = s + $",{resourceName}";
+            }
+            else
+            {
+                c.EnvironmentVariables["hack_resource_references"] = resourceName;
+            }
+        });
     }
 
     private static void ApplyEndpoints<T>(this IResourceBuilder<T> builder, IResourceWithEndpoints resourceWithEndpoints, string? endpointName = null)

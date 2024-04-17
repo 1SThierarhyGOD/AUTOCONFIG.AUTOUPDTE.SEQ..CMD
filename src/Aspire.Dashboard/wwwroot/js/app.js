@@ -438,8 +438,8 @@ window.focusElement = function (selector) {
 
 let resourceGraph = null;
 
-window.initializeResourcesGraph = function () {
-    resourceGraph = new ResourceGraph();
+window.initializeResourcesGraph = function (resourcesInterop) {
+    resourceGraph = new ResourceGraph(resourcesInterop);
     resourceGraph.resize();
 
     const observer = new ResizeObserver(function () {
@@ -457,52 +457,19 @@ window.updateResourcesGraph = function (resources) {
     }
 };
 
+window.switchToResourcesGraph = function () {
+    if (resourceGraph) {
+        resourceGraph.switchTo();
+    }
+}
+
 class ResourceGraph {
-    constructor() {
-        this.backNodes = [
-            { id: "mammal", group: 0, label: "Mammals", level: 1 },
-            { id: "dog", group: 0, label: "Dogs", level: 2 },
-            { id: "cat", group: 0, label: "Cats", level: 2 },
-            { id: "fox", group: 0, label: "Foxes", level: 2 },
-            { id: "elk", group: 0, label: "Elk", level: 2 },
-            { id: "insect", group: 1, label: "Insects", level: 1 },
-            { id: "ant", group: 1, label: "Ants", level: 2 },
-            { id: "bee", group: 1, label: "Bees", level: 2 },
-            { id: "fish", group: 2, label: "Fish", level: 1 },
-            { id: "carp", group: 2, label: "Carp", level: 2 },
-            { id: "pike", group: 2, label: "Pikes", level: 2 }
-        ];
+    constructor(resourcesInterop) {
+        this.resourcesInterop = resourcesInterop;
 
-        this.nodes = [
-            { id: "mammal", group: 0, label: "Mammals", level: 1 },
-            { id: "dog", group: 0, label: "Dogs", level: 2 },
-            { id: "cat", group: 0, label: "Cats", level: 2 },
-            { id: "fox", group: 0, label: "Foxes", level: 2 },
-            { id: "elk", group: 0, label: "Elk", level: 2 },
-            { id: "insect", group: 1, label: "Insects", level: 1 },
-            { id: "ant", group: 1, label: "Ants", level: 2 },
-            { id: "bee", group: 1, label: "Bees", level: 2 },
-            { id: "fish", group: 2, label: "Fish", level: 1 },
-            { id: "carp", group: 2, label: "Carp", level: 2 },
-            { id: "pike", group: 2, label: "Pikes", level: 2 }
-        ];
-
-        this.links = [
-            { target: "mammal", source: "dog", strength: 0.7 },
-            { target: "mammal", source: "cat", strength: 0.7 },
-            { target: "mammal", source: "fox", strength: 0.7 },
-            { target: "mammal", source: "elk", strength: 0.7 },
-            { target: "insect", source: "ant", strength: 0.7 },
-            { target: "insect", source: "bee", strength: 0.7 },
-            { target: "fish", source: "carp", strength: 0.7 },
-            { target: "fish", source: "pike", strength: 0.7 },
-            { target: "cat", source: "elk", strength: 0.1 },
-            { target: "carp", source: "ant", strength: 0.1 },
-            { target: "elk", source: "bee", strength: 0.1 },
-            { target: "dog", source: "cat", strength: 0.1 },
-            { target: "fox", source: "ant", strength: 0.1 },
-            { target: "pike", source: "cat", strength: 0.1 }
-        ];
+        this.backNodes = [];
+        this.nodes = [];
+        this.links = [];
 
         this.svg = d3.select('.resource-graph');
 
@@ -510,14 +477,16 @@ class ResourceGraph {
         this.linkForce = d3
             .forceLink()
             .id(function (link) { return link.id })
-            .strength(function (link) { return 0.01 });
+            .strength(function (link) { return 1 })
+            .distance(100);
 
         this.simulation = d3
             .forceSimulation()
             .force('link', this.linkForce)
-            .force('charge', d3.forceManyBody().strength(-120))
-            .force("x", d3.forceX().strength(0.01))
-            .force("y", d3.forceY().strength(0.01));
+            .force('charge', d3.forceManyBody().strength(-800))
+            .force("collide", d3.forceCollide(50).iterations(2))
+            .force("x", d3.forceX().strength(0.1))
+            .force("y", d3.forceY().strength(0.1));
 
         this.dragDrop = d3.drag().on('start', (event) => {
             if (!event.active) {
@@ -534,31 +503,27 @@ class ResourceGraph {
             }
             event.subject.fx = null;
             event.subject.fy = null;
-        })
+        });
+
+        this.statuses = ["success", "warning", "error"];
 
         this.svg.append("defs").selectAll("marker")
-            .data(this.nodes)
+            .data(this.statuses)
             .join("marker")
-            .attr("id", d => `arrow-${d.id}`)
+            .attr("id", d => `arrow-${d}`)
             .attr("viewBox", "0 -5 10 10")
-            .attr("refX", 38)
+            .attr("refX", 25)
             .attr("refY", 0)
-            .attr("markerWidth", 6)
-            .attr("markerHeight", 6)
+            .attr("markerWidth", 5)
+            .attr("markerHeight", 5)
             .attr("orient", "auto")
             .append("path")
-            .attr("fill", this.getNodeColor)
+            .attr("fill", 'red')
             .attr("d", 'M0,-5L10,0L0,5');
 
         this.linkElementsG = this.svg.append("g").attr("class", "links");
         this.nodeElementsG = this.svg.append("g").attr("class", "nodes");
         this.textElementsG = this.svg.append("g").attr("class", "texts");
-
-        //this.updateResources(null);
-
-        //setInterval(() => {
-        //    this.updateResources(null);
-        //}, 3000);
     }
 
     resize() {
@@ -568,11 +533,35 @@ class ResourceGraph {
         this.svg.attr("viewBox", [-width / 2, -height / 2, width, height]);
     }
 
-    updateResources(resources) {
+    switchTo() {
+        var selectedNode = this.nodes[0];
 
-        //var itemCount = Math.floor(Math.random() * this.backNodes.length);
-        //this.nodes = this.backNodes.slice(0, itemCount);
-        this.nodes = this.backNodes;
+        this.highlightSelectedNode(selectedNode);
+    }
+
+    updateResources(resources) {
+        resources.sort((a, b) => b.referencedNames.length - a.referencedNames.length);
+
+        this.nodes = resources
+            .map((resource, index) => {
+                return {
+                    id: resource.name,
+                    group: 1,
+                    label: resource.displayName,
+                    level: 1
+                };
+            });
+
+        this.links = [];
+        for (var i = 0; i < resources.length; i++) {
+            var resource = resources[i];
+
+            var resourceLinks = resource.referencedNames.map((referencedName, index) => {
+                return { target: referencedName, source: resource.name, strength: 0.7 };
+            });
+
+            this.links.push(...resourceLinks);
+        }
 
         // Update nodes
         this.nodeElements = this.nodeElementsG
@@ -640,9 +629,9 @@ class ResourceGraph {
         var newLinks = this.linkElements
             .enter().append("line")
             .attr("opacity", 0)
-            .attr("stroke-width", 1)
+            .attr("stroke-width", 2)
             .attr("stroke", "rgba(50, 50, 50, 0.2)")
-            .attr("marker-end", d => `url(${new URL(`#arrow-${d.target}`, location)})`);
+            .attr("marker-end", d => `url(${new URL(`#arrow-${'success'}`, location)})`);
 
         newLinks.transition()
             .attr("opacity", 1);
@@ -708,17 +697,24 @@ class ResourceGraph {
 
     selectNode = (event) => {
         var selectedNode = event.target.__data__;
+
+        this.highlightSelectedNode(selectedNode);
+
+        this.resourcesInterop.invokeMethodAsync('SelectResource', selectedNode.id);
+    }
+
+    highlightSelectedNode = (selectedNode) => {
         var neighbors = this.getNeighbors(selectedNode)
 
         // we modify the styles to highlight selected nodes
         this.nodeElements.attr('fill', (node) => {
             return this.getNodeColor(node, neighbors);
-        })
+        });
         this.textElements.attr('fill', (node) => {
             return this.getTextColor(node, neighbors);
-        })
+        });
         this.linkElements.attr('stroke', (link) => {
             return this.getLinkColor(selectedNode, link)
-        })
-    }
+        });
+    };
 };

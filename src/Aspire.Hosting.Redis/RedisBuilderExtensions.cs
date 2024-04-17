@@ -61,6 +61,7 @@ public static class RedisBuilderExtensions
                                       .ExcludeFromManifest();
 
             configureContainer?.Invoke(resourceBuilder);
+            ResourceBuilderExtensions.AddReferenceEnvVar(resourceBuilder, builder.Resource.Name);
 
             return builder;
         }
