@@ -11,7 +11,6 @@ using Aspire.Dashboard.Otlp.Model;
 using Aspire.Dashboard.Otlp.Storage;
 using Aspire.Dashboard.Resources;
 using Aspire.Dashboard.Utils;
-using Humanizer.Localisation;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using Microsoft.FluentUI.AspNetCore.Components;
@@ -80,13 +79,13 @@ public partial class Resources : ComponentBase, IAsyncDisposable, IPageWithSessi
             _visibleResourceTypes.TryRemove(resourceType, out _);
         }
 
-        await UpdateResourceGraphAsync();
+        await UpdateResourceGraphResourcesAsync();
         await ClearSelectedResourceAsync();
     }
 
     private async Task HandleSearchFilterChangedAsync()
     {
-        await UpdateResourceGraphAsync();
+        await UpdateResourceGraphResourcesAsync();
         await ClearSelectedResourceAsync();
     }
 
@@ -131,7 +130,7 @@ public partial class Resources : ComponentBase, IAsyncDisposable, IPageWithSessi
                 _visibleResourceTypes.Clear();
             }
 
-            _ = UpdateResourceGraphAsync();
+            _ = UpdateResourceGraphResourcesAsync();
         }
     }
 
@@ -207,7 +206,7 @@ public partial class Resources : ComponentBase, IAsyncDisposable, IPageWithSessi
                         }
                     }
 
-                    await UpdateResourceGraphAsync();
+                    await UpdateResourceGraphResourcesAsync();
                     await InvokeAsync(StateHasChanged);
                 }
             });
@@ -221,7 +220,7 @@ public partial class Resources : ComponentBase, IAsyncDisposable, IPageWithSessi
             _resourcesInteropReference = DotNetObjectReference.Create(new ResourcesInterop(this));
 
             await JS.InvokeVoidAsync("initializeResourcesGraph", _resourcesInteropReference);
-            await UpdateResourceGraphAsync();
+            await UpdateResourceGraphResourcesAsync();
         }
     }
 
@@ -230,7 +229,7 @@ public partial class Resources : ComponentBase, IAsyncDisposable, IPageWithSessi
         await this.InitializeViewModelAsync();
     }
 
-    private async Task UpdateResourceGraphAsync()
+    private async Task UpdateResourceGraphResourcesAsync()
     {
         if (PageViewModel.SelectedViewKind != ResourceViewKind.Graph)
         {
@@ -260,6 +259,8 @@ public partial class Resources : ComponentBase, IAsyncDisposable, IPageWithSessi
             }
 
             var endpoint = GetDisplayedEndpoints(r, out _).FirstOrDefault();
+            var resourceName = ResourceViewModel.GetResourceName(r, _resourceByName);
+            var color = ColorGenerator.Instance.GetColorHexByKey(resourceName);
 
             var dto = new ResourceDto
             {
@@ -267,6 +268,7 @@ public partial class Resources : ComponentBase, IAsyncDisposable, IPageWithSessi
                 ResourceType = r.ResourceType,
                 DisplayName = ResourceViewModel.GetResourceName(r, _resourceByName),
                 Uid = r.Uid,
+                Color = color,
                 State = r.State,
                 StateStyle = r.StateStyle,
                 ReferencedNames = resolvedNames.ToImmutableArray(),
@@ -300,6 +302,7 @@ public partial class Resources : ComponentBase, IAsyncDisposable, IPageWithSessi
         public required string ResourceType { get; init; }
         public required string DisplayName { get; init; }
         public required string Uid { get; init; }
+        public required string Color { get; init; }
         public required string? State { get; init; }
         public required string? StateStyle { get; init; }
         public required ImmutableArray<string> ReferencedNames { get; init; }
@@ -342,6 +345,11 @@ public partial class Resources : ComponentBase, IAsyncDisposable, IPageWithSessi
     private async Task ClearSelectedResourceAsync(bool causedByUserAction = false)
     {
         SelectedResource = null;
+
+        if (PageViewModel.SelectedViewKind == ResourceViewKind.Graph)
+        {
+            await UpdateResourceGraphSelectedAsync();
+        }
 
         if (_elementIdBeforeDetailsViewOpened is not null && causedByUserAction)
         {
@@ -514,9 +522,14 @@ public partial class Resources : ComponentBase, IAsyncDisposable, IPageWithSessi
 
         if (newView == ResourceViewKind.Graph)
         {
-            await UpdateResourceGraphAsync();
-            await JS.InvokeVoidAsync("switchToResourcesGraph", SelectedResource?.Name);
+            await UpdateResourceGraphResourcesAsync();
+            await UpdateResourceGraphSelectedAsync();
         }
+    }
+
+    private async Task UpdateResourceGraphSelectedAsync()
+    {
+        await JS.InvokeVoidAsync("updateResourcesGraphSelected", SelectedResource?.Name);
     }
 
     public sealed class ResourcesViewModel

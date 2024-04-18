@@ -19,7 +19,7 @@ window.updateResourcesGraph = function (resources) {
     }
 };
 
-window.switchToResourcesGraph = function (resourceName) {
+window.updateResourcesGraphSelected = function (resourceName) {
     if (resourceGraph) {
         resourceGraph.switchTo(resourceName);
     }
@@ -48,7 +48,7 @@ class ResourceGraph {
             .force('charge', d3.forceManyBody().strength(-800))
             .force("collide", d3.forceCollide(70).iterations(10))
             .force("x", d3.forceX().strength(0.1))
-            .force("y", d3.forceY().strength(0.1));
+            .force("y", d3.forceY().strength(0.15));
 
         this.dragDrop = d3.drag().on('start', (event) => {
             if (!event.active) {
@@ -67,20 +67,38 @@ class ResourceGraph {
             event.subject.fy = null;
         });
 
-        this.statuses = ["success", "warning", "error"];
+        this.statuses1 = ["normal"];
 
         this.svg.append("defs").selectAll("marker")
-            .data(this.statuses)
+            .data(this.statuses1)
             .join("marker")
             .attr("id", d => `arrow-${d}`)
             .attr("viewBox", "0 -5 10 10")
-            .attr("refX", 35)
+            .attr("refX", 42)
             .attr("refY", 0)
-            .attr("markerWidth", 5)
-            .attr("markerHeight", 5)
+            .attr("markerWidth", 10)
+            .attr("markerHeight", 10)
             .attr("orient", "auto")
+            .attr("markerUnits", "userSpaceOnUse")
+            .attr("class", d => `arrow-${d}`)
             .append("path")
-            .attr("fill", "rgba(50, 50, 50, 0.2)")
+            .attr("d", 'M0,-5L10,0L0,5');
+
+        this.statuses2 = ["highlight"];
+
+        this.svg.append("defs").selectAll("marker")
+            .data(this.statuses2)
+            .join("marker")
+            .attr("id", d => `arrow-${d}`)
+            .attr("viewBox", "0 -5 10 10")
+            .attr("refX", 30)
+            .attr("refY", 0)
+            .attr("markerWidth", 15)
+            .attr("markerHeight", 15)
+            .attr("orient", "auto")
+            .attr("markerUnits", "userSpaceOnUse")
+            .attr("class", d => `arrow-${d}`)
+            .append("path")
             .attr("d", 'M0,-5L10,0L0,5');
 
         this.linkElementsG = this.svg.append("g").attr("class", "links");
@@ -96,8 +114,8 @@ class ResourceGraph {
     }
 
     switchTo(resourceName) {
-        var selectedNode = this.nodes.find(node => node.id === resourceName);
-        this.highlightSelectedNode(selectedNode);
+        this.selectedNode = this.nodes.find(node => node.id === resourceName);
+        this.updateNodeHighlights(null);
 
         // For some reason the arrow markers on lines disappear when switching back to
         // Update the simulation
@@ -123,7 +141,8 @@ class ResourceGraph {
                     label: resource.displayName,
                     level: 1,
                     endpointUrl: resource.endpointUrl,
-                    endpointText: resource.endpointText
+                    endpointText: resource.endpointText,
+                    color: resource.color
                 };
             });
 
@@ -153,8 +172,11 @@ class ResourceGraph {
         var newNodes = this.nodeElements
             .enter().append("circle")
             .attr("opacity", 0)
-            .attr("r", 24)
-            .attr("fill", this.getNodeColor)
+            .attr("r", 30)
+            .attr("class", "resource-node")
+            .attr("fill", n => n.color)
+            .attr("stroke", "white")
+            .attr("stroke-width", "0.5em")
             .call(this.dragDrop)
             .on('click', this.selectNode)
             .on('mouseover', this.hoverNode)
@@ -189,9 +211,14 @@ class ResourceGraph {
             .text(function (node) {
                 return node.label;
             })
+            .attr("class", "resource-name")
             .attr("font-size", 15)
             .attr("text-anchor", "middle")
-            .attr("dy", 40)
+            .attr("stroke", "white")
+            .attr("stroke-width", "0.5em")
+            .attr("paint-order", "stroke")
+            .attr("stroke-linejoin", "round")
+            .attr("dy", 45)
             .on('click', this.selectNode);
 /*
         newText
@@ -223,9 +250,7 @@ class ResourceGraph {
         var newLinks = this.linkElements
             .enter().append("line")
             .attr("opacity", 0)
-            .attr("stroke-width", 2)
-            .attr("stroke", "rgba(50, 50, 50, 0.2)")
-            .attr("marker-end", d => `url(${new URL(`#arrow-${'success'}`, location)})`);
+            .attr("class", "resource-link");
 
         newLinks.transition()
             .attr("opacity", 1);
@@ -270,17 +295,19 @@ class ResourceGraph {
         return link.target.id === node.id || link.source.id === node.id
     }
 
-
     getNodeColor(node, neighbors) {
         if (Array.isArray(neighbors) && neighbors.indexOf(node.id) > -1) {
             return node.level === 1 ? 'blue' : 'green'
         }
 
-        return node.level === 1 ? 'red' : 'gray'
+        return node.level === 1 ? node.color : 'gray'
     }
 
-    getLinkColor(node, link) {
-        return node && this.isNeighborLink(node, link) ? 'green' : '#E5E5E5'
+    getLinkColor(nodes, link) {
+        if (nodes.find(n => this.isNeighborLink(n, link))) {
+            return 'resource-link-highlight';
+        }
+        return 'resource-link'
     }
 
     getTextColor(node, neighbors) {
@@ -288,25 +315,27 @@ class ResourceGraph {
     }
 
     selectNode = (event) => {
-        var selectedNode = event.target.__data__;
+        this.selectedNode = event.target.__data__;
 
-        this.highlightSelectedNode(selectedNode);
+        this.updateNodeHighlights(null);
 
-        this.resourcesInterop.invokeMethodAsync('SelectResource', selectedNode.id);
+        this.resourcesInterop.invokeMethodAsync('SelectResource', this.selectedNode.id);
     }
 
     hoverNode = (event) => {
-        var selectedNode = event.target.__data__;
+        var mouseoverNode = event.target.__data__;
 
-        this.highlightSelectedNode(selectedNode);
+        this.updateNodeHighlights(mouseoverNode);
     }
 
     unHoverNode = (event) => {
-        this.highlightSelectedNode(null);
+        this.updateNodeHighlights(null);
     };
 
-    highlightSelectedNode = (selectedNode) => {
-        var neighbors = selectedNode ? this.getNeighbors(selectedNode) : [];
+    updateNodeHighlights = (mouseoverNode) => {
+        var mouseoverNeighbors = mouseoverNode ? this.getNeighbors(mouseoverNode) : [];
+        var selectNeighbors = this.selectedNode ? this.getNeighbors(this.selectedNode) : [];
+        var neighbors = [...mouseoverNeighbors, ...selectNeighbors];
 
         // we modify the styles to highlight selected nodes
         this.nodeElements.attr('fill', (node) => {
@@ -315,8 +344,15 @@ class ResourceGraph {
         this.textElements.attr('fill', (node) => {
             return this.getTextColor(node, neighbors);
         });
-        this.linkElements.attr('stroke', (link) => {
-            return this.getLinkColor(selectedNode, link)
+        this.linkElements.attr('class', (link) => {
+            var nodes = [];
+            if (mouseoverNode) {
+                nodes.push(mouseoverNode);
+            }
+            if (this.selectedNode) {
+                nodes.push(this.selectedNode);
+            }
+            return this.getLinkColor(nodes, link)
         });
     };
 };

@@ -62,3 +62,34 @@
     width: 100%;
     display: grid;
 }
+
+::deep .resource-name {
+    fill: var(--neutral-foreground-rest);
+    stroke: var(--fill-color);
+}
+
+::deep .resource-node {
+    stroke: var(--fill-color);
+}
+
+
+
+::deep .resource-link {
+    stroke: var(--neutral-stroke-rest);
+    stroke-width: 2;
+    marker-end: url(#arrow-normal);
+}
+
+::deep .arrow-normal {
+    fill: var(--neutral-stroke-rest);
+}
+
+::deep .arrow-highlight {
+    fill: var(--neutral-stroke-hover);
+}
+
+::deep .resource-link-highlight {
+    stroke: var(--neutral-stroke-hover);
+    stroke-width: 4;
+    marker-end: url(#arrow-highlight);
+}
