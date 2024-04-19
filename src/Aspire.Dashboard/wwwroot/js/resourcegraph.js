@@ -34,6 +34,14 @@ class ResourceGraph {
         this.links = [];
 
         this.svg = d3.select('.resource-graph');
+        this.baseGroup = this.svg.append("g");
+
+        // Enable zoom + pan
+        // https://www.d3indepth.com/zoom-and-pan/
+        let zoom = d3.zoom().on('zoom', (event) => {
+            this.baseGroup.attr('transform', event.transform);
+        });
+        this.svg.call(zoom);
 
         // simulation setup with all forces
         this.linkForce = d3
@@ -101,9 +109,9 @@ class ResourceGraph {
             .append("path")
             .attr("d", 'M0,-5L10,0L0,5');
 
-        this.linkElementsG = this.svg.append("g").attr("class", "links");
-        this.nodeElementsG = this.svg.append("g").attr("class", "nodes");
-        this.textElementsG = this.svg.append("g").attr("class", "texts");
+        this.linkElementsG = this.baseGroup.append("g").attr("class", "links");
+        this.nodeElementsG = this.baseGroup.append("g").attr("class", "nodes");
+        this.textElementsG = this.baseGroup.append("g").attr("class", "texts");
     }
 
     resize() {
