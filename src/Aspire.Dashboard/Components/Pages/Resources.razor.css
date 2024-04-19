@@ -70,13 +70,23 @@
 
 ::deep .resource-node {
     stroke: var(--fill-color);
+    fill: var(--fill-color);
 }
 
+::deep .resource-node-border {
+    stroke: var(--neutral-stroke-rest);
+    stroke-width: 1;
+    fill: transparent;
+}
+
+::deep .resource-status-circle {
+    fill: var(--fill-color);
+}
 
 
 ::deep .resource-link {
     stroke: var(--neutral-stroke-rest);
-    stroke-width: 2;
+    stroke-width: 1;
     marker-end: url(#arrow-normal);
 }
 
@@ -90,6 +100,7 @@
 
 ::deep .resource-link-highlight {
     stroke: var(--neutral-stroke-hover);
-    stroke-width: 4;
+    stroke-dasharray: 5,5;
+    stroke-width: 2;
     marker-end: url(#arrow-highlight);
 }

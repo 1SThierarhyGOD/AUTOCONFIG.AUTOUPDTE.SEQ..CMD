@@ -91,7 +91,7 @@ class ResourceGraph {
             .join("marker")
             .attr("id", d => `arrow-${d}`)
             .attr("viewBox", "0 -5 10 10")
-            .attr("refX", 30)
+            .attr("refX", 31)
             .attr("refY", 0)
             .attr("markerWidth", 15)
             .attr("markerHeight", 15)
@@ -142,7 +142,8 @@ class ResourceGraph {
                     level: 1,
                     endpointUrl: resource.endpointUrl,
                     endpointText: resource.endpointText,
-                    color: resource.color
+                    color: resource.color,
+                    icon: resource.icon
                 };
             });
 
@@ -159,7 +160,7 @@ class ResourceGraph {
 
         // Update nodes
         this.nodeElements = this.nodeElementsG
-            .selectAll("circle")
+            .selectAll(".resource-group")
             .data(this.nodes);
 
         // Remove excess nodes:
@@ -170,17 +171,46 @@ class ResourceGraph {
             .remove();
 
         var newNodes = this.nodeElements
-            .enter().append("circle")
+            .enter().append("g")
+            .attr("class", "resource-group")
             .attr("opacity", 0)
-            .attr("r", 30)
-            .attr("class", "resource-node")
-            .attr("fill", n => n.color)
-            .attr("stroke", "white")
-            .attr("stroke-width", "0.5em")
             .call(this.dragDrop)
             .on('click', this.selectNode)
             .on('mouseover', this.hoverNode)
             .on('mouseout', this.unHoverNode);
+
+        newNodes
+            .append("circle")
+            .attr("r", 30)
+            .attr("class", "resource-node")
+            .attr("stroke", "white")
+            .attr("stroke-width", "0.5em");
+
+        newNodes
+            .append("circle")
+            .attr("r", 30)
+            .attr("class", "resource-node-border");
+
+        newNodes
+            .append("g")
+            .attr("transform", "scale(1.5) translate(-12,-12)")
+            .append("path")
+            .attr("fill", n => n.color)
+            .attr("d", n => n.icon);
+
+        newNodes
+            .append("circle")
+            .attr("r", 11)
+            .attr("cy", -25)
+            .attr("cx", 15)
+            .attr("class", "resource-status-circle");
+
+        newNodes
+            .append("g")
+            .attr("transform", "scale(1.3) translate(3,-27)")
+            .append("path")
+            .attr("d", "M8 2a6 6 0 1 1 0 12A6 6 0 0 1 8 2Zm2.12 4.16L7.25 9.04l-1.4-1.4a.5.5 0 1 0-.7.71L6.9 10.1c.2.2.5.2.7 0l3.23-3.23a.5.5 0 0 0-.71-.7Z")
+            .attr("fill", "green");
 
         newNodes.transition()
             .attr("opacity", 1);
@@ -212,7 +242,7 @@ class ResourceGraph {
                 return node.label;
             })
             .attr("class", "resource-name")
-            .attr("font-size", 15)
+            .attr("font-size", 14)
             .attr("text-anchor", "middle")
             .attr("stroke", "white")
             .attr("stroke-width", "0.5em")
@@ -266,10 +296,11 @@ class ResourceGraph {
    }
 
     onTick = () => {
-        this.nodeElements
-            .attr('cx', function (node) { return node.x })
-            .attr('cy', function (node) { return node.y });
+        //this.nodeElements
+        //    .attr('cx', function (node) { return node.x })
+        //    .attr('cy', function (node) { return node.y });
 
+        this.nodeElements.attr("transform", function (d) { return "translate(" + d.x + "," + d.y + ")"; });
         this.textElements.attr("transform", function (d) { return "translate(" + d.x + "," + d.y + ")"; });
 
         this.linkElements

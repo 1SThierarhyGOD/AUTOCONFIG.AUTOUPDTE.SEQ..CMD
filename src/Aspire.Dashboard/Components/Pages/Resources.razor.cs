@@ -6,6 +6,7 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Globalization;
 using System.Text;
+using System.Xml.Linq;
 using Aspire.Dashboard.Model;
 using Aspire.Dashboard.Otlp.Model;
 using Aspire.Dashboard.Otlp.Storage;
@@ -236,6 +237,11 @@ public partial class Resources : ComponentBase, IAsyncDisposable, IPageWithSessi
             return;
         }
 
+        var databaseIcon = GetIconPathData(new Icons.Filled.Size24.Database());
+        var containerIcon = GetIconPathData(new Icons.Filled.Size24.Box());
+        var executableIcon = GetIconPathData(new Icons.Filled.Size24.SettingsCogMultiple());
+        var projectIcon = GetIconPathData(new Icons.Filled.Size24.CodeCircle());
+
         var activeResources = _resourceByName.Values.Where(Filter).ToList();
         var resources = activeResources.Select(MapDto).ToList();
         await JS.InvokeVoidAsync("updateResourcesGraph", resources);
@@ -262,6 +268,15 @@ public partial class Resources : ComponentBase, IAsyncDisposable, IPageWithSessi
             var resourceName = ResourceViewModel.GetResourceName(r, _resourceByName);
             var color = ColorGenerator.Instance.GetColorHexByKey(resourceName);
 
+            var icon = r.ResourceType switch
+            {
+                KnownResourceTypes.Executable => executableIcon,
+                KnownResourceTypes.Project => projectIcon,
+                KnownResourceTypes.Container => containerIcon,
+                "PostgresDatabaseResource" => databaseIcon,
+                _ => executableIcon
+            };
+
             var dto = new ResourceDto
             {
                 Name = r.Name,
@@ -271,6 +286,7 @@ public partial class Resources : ComponentBase, IAsyncDisposable, IPageWithSessi
                 Color = color,
                 State = r.State,
                 StateStyle = r.StateStyle,
+                Icon = icon,
                 ReferencedNames = resolvedNames.ToImmutableArray(),
                 EndpointUrl = endpoint?.Url,
                 EndpointText = endpoint?.Text ?? endpoint?.Url
@@ -278,6 +294,13 @@ public partial class Resources : ComponentBase, IAsyncDisposable, IPageWithSessi
 
             return dto;
         }
+    }
+
+    private static string GetIconPathData(Icon icon)
+    {
+        var p = icon.Content;
+        var e = XElement.Parse(p);
+        return e.Attribute("d")!.Value;
     }
 
     private class ResourcesInterop(Resources resources)
@@ -305,6 +328,7 @@ public partial class Resources : ComponentBase, IAsyncDisposable, IPageWithSessi
         public required string Color { get; init; }
         public required string? State { get; init; }
         public required string? StateStyle { get; init; }
+        public required string Icon { get; init; }
         public required ImmutableArray<string> ReferencedNames { get; init; }
         public required string? EndpointUrl { get; init; }
         public required string? EndpointText { get; init; }
