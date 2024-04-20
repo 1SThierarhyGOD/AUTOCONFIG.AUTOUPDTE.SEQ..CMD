@@ -48,15 +48,15 @@ class ResourceGraph {
             .forceLink()
             .id(function (link) { return link.id })
             .strength(function (link) { return 1 })
-            .distance(100);
+            .distance(150);
 
         this.simulation = d3
             .forceSimulation()
             .force('link', this.linkForce)
             .force('charge', d3.forceManyBody().strength(-800))
-            .force("collide", d3.forceCollide(70).iterations(10))
+            .force("collide", d3.forceCollide(90).iterations(10))
             .force("x", d3.forceX().strength(0.1))
-            .force("y", d3.forceY().strength(0.15));
+            .force("y", d3.forceY(-50).strength(0.2));
 
         this.dragDrop = d3.drag().on('start', (event) => {
             if (!event.active) {
@@ -82,7 +82,7 @@ class ResourceGraph {
             .join("marker")
             .attr("id", d => `arrow-${d}`)
             .attr("viewBox", "0 -5 10 10")
-            .attr("refX", 42)
+            .attr("refX", 53)
             .attr("refY", 0)
             .attr("markerWidth", 10)
             .attr("markerHeight", 10)
@@ -99,7 +99,7 @@ class ResourceGraph {
             .join("marker")
             .attr("id", d => `arrow-${d}`)
             .attr("viewBox", "0 -5 10 10")
-            .attr("refX", 31)
+            .attr("refX", 39)
             .attr("refY", 0)
             .attr("markerWidth", 15)
             .attr("markerHeight", 15)
@@ -127,7 +127,7 @@ class ResourceGraph {
 
         // For some reason the arrow markers on lines disappear when switching back to
         // Update the simulation
-        this.simulation.alpha(0.01).restart();
+        //this.simulation.alpha(0.01).restart();
     }
 
     updateResources(resources) {
@@ -178,6 +178,7 @@ class ResourceGraph {
             .attr("opacity", 0)
             .remove();
 
+        // Resource node
         var newNodes = this.nodeElements
             .enter().append("g")
             .attr("class", "resource-group")
@@ -186,19 +187,16 @@ class ResourceGraph {
             .on('click', this.selectNode)
             .on('mouseover', this.hoverNode)
             .on('mouseout', this.unHoverNode);
-
         newNodes
             .append("circle")
-            .attr("r", 30)
+            .attr("r", 40)
             .attr("class", "resource-node")
             .attr("stroke", "white")
             .attr("stroke-width", "0.5em");
-
         newNodes
             .append("circle")
-            .attr("r", 30)
+            .attr("r", 40)
             .attr("class", "resource-node-border");
-
         newNodes
             .append("g")
             .attr("transform", "scale(1.5) translate(-12,-12)")
@@ -206,16 +204,17 @@ class ResourceGraph {
             .attr("fill", n => n.color)
             .attr("d", n => n.icon);
 
-        newNodes
-            .append("circle")
-            .attr("r", 11)
-            .attr("cy", -25)
-            .attr("cx", 15)
-            .attr("class", "resource-status-circle");
-
-        newNodes
+        // Resource status
+        var statusGroup = newNodes
             .append("g")
-            .attr("transform", "scale(1.3) translate(3,-27)")
+            .attr("transform", "scale(1.5) translate(9,-29)");
+        statusGroup
+            .append("circle")
+            .attr("r", 8)
+            .attr("cy", 8)
+            .attr("cx", 8)
+            .attr("class", "resource-status-circle");
+        statusGroup
             .append("path")
             .attr("d", "M8 2a6 6 0 1 1 0 12A6 6 0 0 1 8 2Zm2.12 4.16L7.25 9.04l-1.4-1.4a.5.5 0 1 0-.7.71L6.9 10.1c.2.2.5.2.7 0l3.23-3.23a.5.5 0 0 0-.71-.7Z")
             .attr("fill", "green");
@@ -256,7 +255,7 @@ class ResourceGraph {
             .attr("stroke-width", "0.5em")
             .attr("paint-order", "stroke")
             .attr("stroke-linejoin", "round")
-            .attr("dy", 45)
+            .attr("dy", 55)
             .on('click', this.selectNode);
 /*
         newText
@@ -350,7 +349,7 @@ class ResourceGraph {
     }
 
     getTextColor(node, neighbors) {
-        return Array.isArray(neighbors) && neighbors.indexOf(node.id) > -1 ? 'green' : 'black'
+        return Array.isArray(neighbors) && neighbors.indexOf(node.id) > -1 ? 'green' : 'black';
     }
 
     selectNode = (event) => {
@@ -377,8 +376,18 @@ class ResourceGraph {
         var neighbors = [...mouseoverNeighbors, ...selectNeighbors];
 
         // we modify the styles to highlight selected nodes
-        this.nodeElements.attr('fill', (node) => {
-            return this.getNodeColor(node, neighbors);
+        this.nodeElements.attr('class', (node) => {
+            if (node == mouseoverNode) {
+                return 'resource-group-hover';
+            }
+            if (node == this.selectedNode) {
+                return 'resource-group-selected';
+            }
+
+            if (neighbors.indexOf(node.id) > -1) {
+                return 'resource-group-highlight';
+            }
+            return 'resource-group';
         });
         this.textElements.attr('fill', (node) => {
             return this.getTextColor(node, neighbors);
