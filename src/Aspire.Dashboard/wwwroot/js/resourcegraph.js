@@ -29,7 +29,6 @@ class ResourceGraph {
     constructor(resourcesInterop) {
         this.resourcesInterop = resourcesInterop;
 
-        this.backNodes = [];
         this.nodes = [];
         this.links = [];
 
@@ -54,7 +53,7 @@ class ResourceGraph {
             .forceSimulation()
             .force('link', this.linkForce)
             .force('charge', d3.forceManyBody().strength(-800))
-            .force("collide", d3.forceCollide(90).iterations(10))
+            .force("collide", d3.forceCollide(110).iterations(10))
             .force("x", d3.forceX().strength(0.1))
             .force("y", d3.forceY(-50).strength(0.2));
 
@@ -82,7 +81,7 @@ class ResourceGraph {
             .join("marker")
             .attr("id", d => `arrow-${d}`)
             .attr("viewBox", "0 -5 10 10")
-            .attr("refX", 53)
+            .attr("refX", 63)
             .attr("refY", 0)
             .attr("markerWidth", 10)
             .attr("markerHeight", 10)
@@ -99,7 +98,7 @@ class ResourceGraph {
             .join("marker")
             .attr("id", d => `arrow-${d}`)
             .attr("viewBox", "0 -5 10 10")
-            .attr("refX", 39)
+            .attr("refX", 46)
             .attr("refY", 0)
             .attr("markerWidth", 15)
             .attr("markerHeight", 15)
@@ -168,7 +167,7 @@ class ResourceGraph {
 
         // Update nodes
         this.nodeElements = this.nodeElementsG
-            .selectAll(".resource-group")
+            .selectAll(".resource-group, .resource-group-selected, .resource-group-hover, .resource-group-highlight")
             .data(this.nodes);
 
         // Remove excess nodes:
@@ -182,6 +181,7 @@ class ResourceGraph {
         var newNodes = this.nodeElements
             .enter().append("g")
             .attr("class", "resource-group")
+            .attr("filter", "url(#dropGlow)")
             .attr("opacity", 0)
             .call(this.dragDrop)
             .on('click', this.selectNode)
@@ -189,25 +189,34 @@ class ResourceGraph {
             .on('mouseout', this.unHoverNode);
         newNodes
             .append("circle")
-            .attr("r", 40)
+            .attr("r", 53)
             .attr("class", "resource-node")
             .attr("stroke", "white")
-            .attr("stroke-width", "0.5em");
+            .attr("stroke-width", "4");
         newNodes
             .append("circle")
-            .attr("r", 40)
+            .attr("r", 50)
             .attr("class", "resource-node-border");
         newNodes
             .append("g")
-            .attr("transform", "scale(1.5) translate(-12,-12)")
+            .attr("transform", "scale(2) translate(-12,-17)")
             .append("path")
             .attr("fill", n => n.color)
             .attr("d", n => n.icon);
+        newNodes
+            .append("text")
+            .text(function (node) {
+                return "127.0.0.1:80";
+            })
+            .attr("class", "resource-endpoint")
+            .attr("font-size", 11)
+            .attr("text-anchor", "middle")
+            .attr("dy", 28);
 
         // Resource status
         var statusGroup = newNodes
             .append("g")
-            .attr("transform", "scale(1.5) translate(9,-29)");
+            .attr("transform", "scale(1.6) translate(12,-32)");
         statusGroup
             .append("circle")
             .attr("r", 8)
@@ -249,13 +258,13 @@ class ResourceGraph {
                 return node.label;
             })
             .attr("class", "resource-name")
-            .attr("font-size", 14)
+            .attr("font-size", 15)
             .attr("text-anchor", "middle")
             .attr("stroke", "white")
             .attr("stroke-width", "0.5em")
             .attr("paint-order", "stroke")
             .attr("stroke-linejoin", "round")
-            .attr("dy", 55)
+            .attr("dy", 67)
             .on('click', this.selectNode);
 /*
         newText
@@ -389,8 +398,12 @@ class ResourceGraph {
             }
             return 'resource-group';
         });
-        this.textElements.attr('fill', (node) => {
-            return this.getTextColor(node, neighbors);
+        this.textElements.attr('class', (node) => {
+            if (node == this.selectedNode) {
+                return 'resource-name-selected';
+            }
+
+            return 'resource-name';
         });
         this.linkElements.attr('class', (link) => {
             var nodes = [];

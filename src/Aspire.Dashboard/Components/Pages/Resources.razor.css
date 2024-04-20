@@ -68,34 +68,48 @@
     stroke: var(--fill-color);
 }
 
+::deep .resource-name-selected {
+    fill: var(--neutral-foreground-rest);
+    stroke: var(--fill-color);
+}
+
 ::deep .resource-node {
     stroke: var(--fill-color);
     fill: var(--fill-color);
 }
 
 ::deep .resource-group-hover .resource-node {
-    fill: goldenrod;
+    fill: var(--neutral-fill-hover);
+}
+
+::deep .resource-group-selected {
+    /*transform: scale(1.2);*/
 }
 
 ::deep .resource-group-selected .resource-node {
     fill: var(--neutral-fill-secondary-rest);
-    r: 50;
 }
 
 ::deep .resource-group-selected .resource-node-border {
     stroke: var(--neutral-stroke-hover);
-    r: 50;
 }
 
 ::deep .resource-group-highlight .resource-node-border {
     stroke: var(--neutral-stroke-hover);
-    stroke-dasharray: 5,5;
+}
+
+::deep .resource-group-hover .resource-node-border {
+    stroke: var(--neutral-stroke-hover);
 }
 
 ::deep .resource-node-border {
     stroke: var(--neutral-stroke-rest);
     stroke-width: 1;
     fill: transparent;
+}
+
+::deep .resource-endpoint {
+    fill: var(--foreground-subtext-rest);
 }
 
 ::deep .resource-status-circle {
