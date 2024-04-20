@@ -265,6 +265,7 @@ public partial class Resources : ComponentBase, IAsyncDisposable, IPageWithSessi
             }
 
             var endpoint = GetDisplayedEndpoints(r, out _).FirstOrDefault();
+            var resolvedEndpointText = ResolvedEndpointText(endpoint);
             var resourceName = ResourceViewModel.GetResourceName(r, _resourceByName);
             var color = ColorGenerator.Instance.GetColorHexByKey(resourceName);
 
@@ -289,11 +290,27 @@ public partial class Resources : ComponentBase, IAsyncDisposable, IPageWithSessi
                 Icon = icon,
                 ReferencedNames = resolvedNames.ToImmutableArray(),
                 EndpointUrl = endpoint?.Url,
-                EndpointText = endpoint?.Text ?? endpoint?.Url
+                EndpointText = resolvedEndpointText
             };
 
             return dto;
         }
+    }
+
+    private static string ResolvedEndpointText(DisplayedEndpoint? endpoint)
+    {
+        var text = endpoint?.Text ?? endpoint?.Url;
+        if (string.IsNullOrEmpty(text))
+        {
+            return "No endpoints";
+        }
+
+        if (Uri.TryCreate(text, UriKind.Absolute, out var uri))
+        {
+            return $"{uri.Host}:{uri.Port}";
+        }
+
+        return text;
     }
 
     private static string GetIconPathData(Icon icon)

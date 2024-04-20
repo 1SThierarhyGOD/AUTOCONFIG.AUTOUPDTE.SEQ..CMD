@@ -81,7 +81,7 @@ class ResourceGraph {
             .join("marker")
             .attr("id", d => `arrow-${d}`)
             .attr("viewBox", "0 -5 10 10")
-            .attr("refX", 63)
+            .attr("refX", 66)
             .attr("refY", 0)
             .attr("markerWidth", 10)
             .attr("markerHeight", 10)
@@ -98,7 +98,7 @@ class ResourceGraph {
             .join("marker")
             .attr("id", d => `arrow-${d}`)
             .attr("viewBox", "0 -5 10 10")
-            .attr("refX", 46)
+            .attr("refX", 48)
             .attr("refY", 0)
             .attr("markerWidth", 15)
             .attr("markerHeight", 15)
@@ -189,24 +189,24 @@ class ResourceGraph {
             .on('mouseout', this.unHoverNode);
         newNodes
             .append("circle")
-            .attr("r", 53)
+            .attr("r", 56)
             .attr("class", "resource-node")
             .attr("stroke", "white")
             .attr("stroke-width", "4");
         newNodes
             .append("circle")
-            .attr("r", 50)
+            .attr("r", 53)
             .attr("class", "resource-node-border");
         newNodes
             .append("g")
-            .attr("transform", "scale(2) translate(-12,-17)")
+            .attr("transform", "scale(2.1) translate(-12,-17)")
             .append("path")
             .attr("fill", n => n.color)
             .attr("d", n => n.icon);
         newNodes
             .append("text")
             .text(function (node) {
-                return "127.0.0.1:80";
+                return node.endpointText || 'No endpoints';
             })
             .attr("class", "resource-endpoint")
             .attr("font-size", 11)
@@ -216,7 +216,7 @@ class ResourceGraph {
         // Resource status
         var statusGroup = newNodes
             .append("g")
-            .attr("transform", "scale(1.6) translate(12,-32)");
+            .attr("transform", "scale(1.6) translate(14,-34)");
         statusGroup
             .append("circle")
             .attr("r", 8)
@@ -264,7 +264,7 @@ class ResourceGraph {
             .attr("stroke-width", "0.5em")
             .attr("paint-order", "stroke")
             .attr("stroke-linejoin", "round")
-            .attr("dy", 67)
+            .attr("dy", 71)
             .on('click', this.selectNode);
 /*
         newText
