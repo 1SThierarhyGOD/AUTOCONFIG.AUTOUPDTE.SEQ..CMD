@@ -5,6 +5,7 @@ using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Globalization;
+using System.Linq;
 using System.Text;
 using System.Xml.Linq;
 using Aspire.Dashboard.Components.ResourcesGridColumns;
@@ -275,8 +276,7 @@ public partial class Resources : ComponentBase, IAsyncDisposable, IPageWithSessi
                 KnownResourceTypes.Executable => executableIcon,
                 KnownResourceTypes.Project => projectIcon,
                 KnownResourceTypes.Container => containerIcon,
-                "PostgresDatabaseResource" => databaseIcon,
-                _ => executableIcon
+                string t => t.Contains("database", StringComparison.OrdinalIgnoreCase) ? databaseIcon : executableIcon
             };
 
             var stateIcon = StateColumnDisplay.GetStateIcon(r, ColumnsLoc);

@@ -68,11 +68,6 @@
     stroke: var(--fill-color);
 }
 
-::deep .resource-name-selected {
-    fill: var(--neutral-foreground-rest);
-    stroke: var(--fill-color);
-}
-
 ::deep .resource-node {
     stroke: var(--fill-color);
     fill: var(--fill-color);
@@ -82,8 +77,8 @@
     fill: var(--neutral-fill-hover);
 }
 
-::deep .resource-group-selected {
-    /*transform: scale(1.2);*/
+::deep .resource-group-selected .resource-scale {
+    transform: scale(1.2);
 }
 
 ::deep .resource-group-selected .resource-node {
@@ -116,7 +111,6 @@
     fill: var(--fill-color);
 }
 
-
 ::deep .resource-link {
     stroke: var(--neutral-stroke-rest);
     stroke-width: 1;
@@ -131,9 +125,20 @@
     fill: var(--neutral-stroke-hover);
 }
 
+::deep .arrow-highlight-expand {
+    fill: var(--neutral-stroke-hover);
+}
+
 ::deep .resource-link-highlight {
     stroke: var(--neutral-stroke-hover);
     stroke-dasharray: 5,5;
     stroke-width: 2;
     marker-end: url(#arrow-highlight);
+}
+
+::deep .resource-link-highlight-expand {
+    stroke: var(--neutral-stroke-hover);
+    stroke-dasharray: 5,5;
+    stroke-width: 2;
+    marker-end: url(#arrow-highlight-expand);
 }

@@ -57,59 +57,53 @@ class ResourceGraph {
             .force("x", d3.forceX().strength(0.1))
             .force("y", d3.forceY().strength(0.2));
 
+        // Drag start is trigger on mousedown from click.
+        // Only change the state of the simulation when the drag event is triggered.
+        var dragActive = false;
+        var dragged = false;
         this.dragDrop = d3.drag().on('start', (event) => {
-            if (!event.active) {
-                this.simulation.alphaTarget(0.3).restart();
-            }
+            dragActive = event.active;
             event.subject.fx = event.subject.x;
             event.subject.fy = event.subject.y;
         }).on('drag', (event) => {
+            if (!dragActive) {
+                this.simulation.alphaTarget(0.1).restart();
+                dragActive = true;
+            }
+            dragged = true;
             event.subject.fx = event.x;
             event.subject.fy = event.y;
         }).on('end', (event) => {
-            if (!event.active) {
+            if (dragged) {
                 this.simulation.alphaTarget(0);
+                dragged = false;
             }
             event.subject.fx = null;
             event.subject.fy = null;
         });
 
-        this.statuses1 = ["normal"];
-
-        this.svg.append("defs").selectAll("marker")
-            .data(this.statuses1)
-            .join("marker")
-            .attr("id", d => `arrow-${d}`)
-            .attr("viewBox", "0 -5 10 10")
-            .attr("refX", 66)
-            .attr("refY", 0)
-            .attr("markerWidth", 10)
-            .attr("markerHeight", 10)
-            .attr("orient", "auto")
-            .attr("markerUnits", "userSpaceOnUse")
-            .attr("class", d => `arrow-${d}`)
-            .append("path")
-            .attr("d", 'M0,-5L10,0L0,5');
-
-        this.statuses2 = ["highlight"];
-
-        this.svg.append("defs").selectAll("marker")
-            .data(this.statuses2)
-            .join("marker")
-            .attr("id", d => `arrow-${d}`)
-            .attr("viewBox", "0 -5 10 10")
-            .attr("refX", 48)
-            .attr("refY", 0)
-            .attr("markerWidth", 15)
-            .attr("markerHeight", 15)
-            .attr("orient", "auto")
-            .attr("markerUnits", "userSpaceOnUse")
-            .attr("class", d => `arrow-${d}`)
-            .append("path")
-            .attr("d", 'M0,-5L10,0L0,5');
+        var defs = this.svg.append("defs");
+        this.createArrowMarker(defs, "arrow-normal", "arrow-normal", 10, 10, 66);
+        this.createArrowMarker(defs, "arrow-highlight", "arrow-highlight", 15, 15, 48);
+        this.createArrowMarker(defs, "arrow-highlight-expand", "arrow-highlight-expand", 15, 15, 56);
 
         this.linkElementsG = this.baseGroup.append("g").attr("class", "links");
         this.nodeElementsG = this.baseGroup.append("g").attr("class", "nodes");
+    }
+
+    createArrowMarker(parent, id, className, width, height, x) {
+        parent.append("marker")
+            .attr("id", id)
+            .attr("viewBox", "0 -5 10 10")
+            .attr("refX", x)
+            .attr("refY", 0)
+            .attr("markerWidth", width)
+            .attr("markerHeight", height)
+            .attr("orient", "auto")
+            .attr("markerUnits", "userSpaceOnUse")
+            .attr("class", className)
+            .append("path")
+            .attr("d", 'M0,-5L10,0L0,5');
     }
 
     resize() {
@@ -129,8 +123,6 @@ class ResourceGraph {
     }
 
     updateResources(resources) {
-        //resources.sort((a, b) => b.referencedNames.length - a.referencedNames.length);
-
         // If the resources are the same then quickly exit.
         // TODO: Replace JSON.stringify with lower-level comparison.
         if (this.resources && JSON.stringify(resources) === JSON.stringify(this.resources)) {
@@ -172,7 +164,7 @@ class ResourceGraph {
 
         // Update nodes
         this.nodeElements = this.nodeElementsG
-            .selectAll(".resource-group, .resource-group-selected, .resource-group-hover, .resource-group-highlight")
+            .selectAll(".resource-group")
             .data(this.nodes, n => n.id);
 
         // Remove excess nodes:
@@ -188,21 +180,25 @@ class ResourceGraph {
             .attr("class", "resource-group")
             .attr("opacity", 0)
             .attr("resource-name", n => n.id)
-            .call(this.dragDrop)
+            .call(this.dragDrop);
+
+        var newNodesContainer = newNodes
+            .append("g")
+            .attr("class", "resource-scale")
             .on('click', this.selectNode)
             .on('mouseover', this.hoverNode)
             .on('mouseout', this.unHoverNode);
-        newNodes
+        newNodesContainer
             .append("circle")
             .attr("r", 56)
             .attr("class", "resource-node")
             .attr("stroke", "white")
             .attr("stroke-width", "4");
-        newNodes
+        newNodesContainer
             .append("circle")
             .attr("r", 53)
             .attr("class", "resource-node-border");
-        newNodes
+        newNodesContainer
             .append("g")
             .attr("transform", "scale(2.1) translate(-12,-17)")
             .append("path")
@@ -211,7 +207,7 @@ class ResourceGraph {
             .append("title")
             .text(n => n.resourceIcon.tooltip);
 
-        newNodes
+        newNodesContainer
             .append("text")
             .text(function (node) {
                 return node.endpointText || 'No endpoints';
@@ -222,7 +218,7 @@ class ResourceGraph {
             .attr("dy", 28);
 
         // Resource status
-        var statusGroup = newNodes
+        var statusGroup = newNodesContainer
             .append("g")
             .attr("transform", "scale(1.6) translate(14,-34)");
         statusGroup
@@ -240,7 +236,7 @@ class ResourceGraph {
             .append("title")
             .text(n => n.stateIcon.tooltip);
 
-        newNodes
+        newNodesContainer
             .append("text")
             .text(function (node) {
                 return node.label;
@@ -314,31 +310,52 @@ class ResourceGraph {
         return link.target.id === node.id || link.source.id === node.id
     }
 
-    getLinkColor(nodes, link) {
+    getLinkClass(nodes, selectedNode, link) {
         if (nodes.find(n => this.isNeighborLink(n, link))) {
+            if (this.nodeEquals(selectedNode, link.target)) {
+                return 'resource-link-highlight-expand';
+            }
             return 'resource-link-highlight';
         }
         return 'resource-link';
     }
 
     selectNode = (event) => {
-        //var previousSelectedNode = this.selectedNode;
+        var data = event.target.__data__;
 
-        //var currentNodeElement = d3.select(event.target);
+        // Always send the clicked on resource to the server. It will clear the selection if the same resource is clicked again.
+        this.resourcesInterop.invokeMethodAsync('SelectResource', data.id);
 
-        //currentNodeElement
-        //    .transition()
-        //    .duration(300)
-        //    .style("r", "80")
-        //    .on("end", s => {
-        //        //alert('hi');
-        //    });
+        // Unscale the previous selected node.
+        if (this.selectedNode) {
+            changeScale(this, this.selectedNode.id, 1);
+        }
 
-        this.selectedNode = event.target.__data__;
+        // Scale selected node if it is not the same as the previous selected node.
+        var clearSelection = this.nodeEquals(data, this.selectedNode);
+        if (!clearSelection) {
+            changeScale(this, data.id, 1.2);
+        }
 
-        this.updateNodeHighlights(null);
+        this.selectedNode = data;
 
-        this.resourcesInterop.invokeMethodAsync('SelectResource', this.selectedNode.id);
+        function changeScale(self, id, scale) {
+            let match = self.nodeElementsG
+                .selectAll(".resource-group")
+                .filter(function (d) {
+                    return d.id == id;
+                });
+
+            match
+                .select(".resource-scale")
+                .transition()
+                .duration(300)
+                .style("transform", `scale(${scale})`)
+                .on("end", s => {
+                    match.select(".resource-scale").style("transform", null);
+                    self.updateNodeHighlights(null);
+                });
+        }
     }
 
     hoverNode = (event) => {
@@ -365,17 +382,17 @@ class ResourceGraph {
 
         // we modify the styles to highlight selected nodes
         this.nodeElements.attr('class', (node) => {
+            var classNames = ['resource-group'];
             if (this.nodeEquals(node, mouseoverNode)) {
-                return 'resource-group-hover';
+                classNames.push('resource-group-hover');
             }
             if (this.nodeEquals(node, this.selectedNode)) {
-                return 'resource-group-selected';
+                classNames.push('resource-group-selected');
             }
-
             if (neighbors.indexOf(node.id) > -1) {
-                return 'resource-group-highlight';
+                classNames.push('resource-group-highlight');
             }
-            return 'resource-group';
+            return classNames.join(' ');
         });
         this.linkElements.attr('class', (link) => {
             var nodes = [];
@@ -385,7 +402,7 @@ class ResourceGraph {
             if (this.selectedNode) {
                 nodes.push(this.selectedNode);
             }
-            return this.getLinkColor(nodes, link);
+            return this.getLinkClass(nodes, this.selectedNode, link);
         });
     };
 };
