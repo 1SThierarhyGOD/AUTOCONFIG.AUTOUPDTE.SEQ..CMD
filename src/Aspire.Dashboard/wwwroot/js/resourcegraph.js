@@ -55,7 +55,7 @@ class ResourceGraph {
             .force('charge', d3.forceManyBody().strength(-800))
             .force("collide", d3.forceCollide(110).iterations(10))
             .force("x", d3.forceX().strength(0.1))
-            .force("y", d3.forceY(-50).strength(0.2));
+            .force("y", d3.forceY().strength(0.2));
 
         this.dragDrop = d3.drag().on('start', (event) => {
             if (!event.active) {
@@ -130,7 +130,7 @@ class ResourceGraph {
     }
 
     updateResources(resources) {
-        resources.sort((a, b) => b.referencedNames.length - a.referencedNames.length);
+        //resources.sort((a, b) => b.referencedNames.length - a.referencedNames.length);
 
         // If the resources are the same then quickly exit.
         // TODO: Replace JSON.stringify with lower-level comparison.
@@ -144,13 +144,13 @@ class ResourceGraph {
             .map((resource, index) => {
                 return {
                     id: resource.name,
-                    group: 1,
                     label: resource.displayName,
-                    level: 1,
                     endpointUrl: resource.endpointUrl,
                     endpointText: resource.endpointText,
-                    color: resource.color,
-                    icon: resource.icon
+                    color: resource.resourceIconColor,
+                    icon: resource.resourceIcon,
+                    stateIcon: resource.stateIcon,
+                    stateIconColor: resource.stateIconColor
                 };
             });
 
@@ -168,7 +168,7 @@ class ResourceGraph {
         // Update nodes
         this.nodeElements = this.nodeElementsG
             .selectAll(".resource-group, .resource-group-selected, .resource-group-hover, .resource-group-highlight")
-            .data(this.nodes);
+            .data(this.nodes, n => n.id);
 
         // Remove excess nodes:
         this.nodeElements
@@ -181,8 +181,8 @@ class ResourceGraph {
         var newNodes = this.nodeElements
             .enter().append("g")
             .attr("class", "resource-group")
-            .attr("filter", "url(#dropGlow)")
             .attr("opacity", 0)
+            .attr("resource-name", n => n.id)
             .call(this.dragDrop)
             .on('click', this.selectNode)
             .on('mouseover', this.hoverNode)
@@ -225,8 +225,8 @@ class ResourceGraph {
             .attr("class", "resource-status-circle");
         statusGroup
             .append("path")
-            .attr("d", "M8 2a6 6 0 1 1 0 12A6 6 0 0 1 8 2Zm2.12 4.16L7.25 9.04l-1.4-1.4a.5.5 0 1 0-.7.71L6.9 10.1c.2.2.5.2.7 0l3.23-3.23a.5.5 0 0 0-.71-.7Z")
-            .attr("fill", "green");
+            .attr("d", n => n.stateIcon)
+            .attr("fill", n => n.stateIconColor);
 
         newNodes.transition()
             .attr("opacity", 1);
@@ -236,7 +236,7 @@ class ResourceGraph {
         // Update text
         this.textElements = this.textElementsG
             .selectAll("g")
-            .data(this.nodes);
+            .data(this.nodes, n => n.id);
 
         // Remove excess text:
         this.textElements
@@ -285,7 +285,7 @@ class ResourceGraph {
         // Update links
         this.linkElements = this.linkElementsG
             .selectAll("line")
-            .data(this.links);
+            .data(this.links, function (d) { return d.source.id + "-" + d.target.id; });
 
         this.linkElements
             .exit()
@@ -329,11 +329,11 @@ class ResourceGraph {
     getNeighbors(node) {
         return this.links.reduce(function (neighbors, link) {
             if (link.target.id === node.id) {
-                neighbors.push(link.source.id)
+                neighbors.push(link.source.id);
             } else if (link.source.id === node.id) {
-                neighbors.push(link.target.id)
+                neighbors.push(link.target.id);
             }
-            return neighbors
+            return neighbors;
         },
             [node.id]);
     }
@@ -342,23 +342,11 @@ class ResourceGraph {
         return link.target.id === node.id || link.source.id === node.id
     }
 
-    getNodeColor(node, neighbors) {
-        if (Array.isArray(neighbors) && neighbors.indexOf(node.id) > -1) {
-            return node.level === 1 ? 'blue' : 'green'
-        }
-
-        return node.level === 1 ? node.color : 'gray'
-    }
-
     getLinkColor(nodes, link) {
         if (nodes.find(n => this.isNeighborLink(n, link))) {
             return 'resource-link-highlight';
         }
-        return 'resource-link'
-    }
-
-    getTextColor(node, neighbors) {
-        return Array.isArray(neighbors) && neighbors.indexOf(node.id) > -1 ? 'green' : 'black';
+        return 'resource-link';
     }
 
     selectNode = (event) => {
@@ -379,6 +367,13 @@ class ResourceGraph {
         this.updateNodeHighlights(null);
     };
 
+    nodeEquals(resource1, resource2) {
+        if (!resource1 || !resource2) {
+            return false;
+        }
+        return resource1.id === resource2.id;
+    }
+
     updateNodeHighlights = (mouseoverNode) => {
         var mouseoverNeighbors = mouseoverNode ? this.getNeighbors(mouseoverNode) : [];
         var selectNeighbors = this.selectedNode ? this.getNeighbors(this.selectedNode) : [];
@@ -386,10 +381,10 @@ class ResourceGraph {
 
         // we modify the styles to highlight selected nodes
         this.nodeElements.attr('class', (node) => {
-            if (node == mouseoverNode) {
+            if (this.nodeEquals(node, mouseoverNode)) {
                 return 'resource-group-hover';
             }
-            if (node == this.selectedNode) {
+            if (this.nodeEquals(node, this.selectedNode)) {
                 return 'resource-group-selected';
             }
 
@@ -399,7 +394,7 @@ class ResourceGraph {
             return 'resource-group';
         });
         this.textElements.attr('class', (node) => {
-            if (node == this.selectedNode) {
+            if (this.nodeEquals(node, this.selectedNode)) {
                 return 'resource-name-selected';
             }
 
@@ -413,7 +408,7 @@ class ResourceGraph {
             if (this.selectedNode) {
                 nodes.push(this.selectedNode);
             }
-            return this.getLinkColor(nodes, link)
+            return this.getLinkColor(nodes, link);
         });
     };
 };

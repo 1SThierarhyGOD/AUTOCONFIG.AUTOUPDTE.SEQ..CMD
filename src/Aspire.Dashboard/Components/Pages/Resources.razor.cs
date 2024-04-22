@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Text;
 using System.Xml.Linq;
+using Aspire.Dashboard.Components.ResourcesGridColumns;
 using Aspire.Dashboard.Model;
 using Aspire.Dashboard.Otlp.Model;
 using Aspire.Dashboard.Otlp.Storage;
@@ -278,19 +279,21 @@ public partial class Resources : ComponentBase, IAsyncDisposable, IPageWithSessi
                 _ => executableIcon
             };
 
+            var stateIcon = StateColumnDisplay.GetStateIcon(r, ColumnsLoc);
+
             var dto = new ResourceDto
             {
                 Name = r.Name,
                 ResourceType = r.ResourceType,
                 DisplayName = ResourceViewModel.GetResourceName(r, _resourceByName),
                 Uid = r.Uid,
-                Color = color,
-                State = r.State,
-                StateStyle = r.StateStyle,
-                Icon = icon,
+                ResourceIconColor = color,
+                ResourceIcon = icon,
                 ReferencedNames = resolvedNames.ToImmutableArray(),
                 EndpointUrl = endpoint?.Url,
-                EndpointText = resolvedEndpointText
+                EndpointText = resolvedEndpointText,
+                StateIcon = GetIconPathData(stateIcon.Icon),
+                StateIconColor = stateIcon.Color.ToAttributeValue()!
             };
 
             return dto;
@@ -342,13 +345,13 @@ public partial class Resources : ComponentBase, IAsyncDisposable, IPageWithSessi
         public required string ResourceType { get; init; }
         public required string DisplayName { get; init; }
         public required string Uid { get; init; }
-        public required string Color { get; init; }
-        public required string? State { get; init; }
-        public required string? StateStyle { get; init; }
-        public required string Icon { get; init; }
-        public required ImmutableArray<string> ReferencedNames { get; init; }
+        public required string ResourceIcon { get; init; }
+        public required string ResourceIconColor { get; init; }
+        public required string StateIcon { get; init; }
+        public required string StateIconColor { get; init; }
         public required string? EndpointUrl { get; init; }
         public required string? EndpointText { get; init; }
+        public required ImmutableArray<string> ReferencedNames { get; init; }
     }
 
     private bool ApplicationErrorCountsChanged(Dictionary<OtlpApplication, int> newApplicationUnviewedErrorCounts)
