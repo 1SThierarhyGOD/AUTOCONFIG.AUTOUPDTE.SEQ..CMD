@@ -110,7 +110,6 @@ class ResourceGraph {
 
         this.linkElementsG = this.baseGroup.append("g").attr("class", "links");
         this.nodeElementsG = this.baseGroup.append("g").attr("class", "nodes");
-        this.textElementsG = this.baseGroup.append("g").attr("class", "texts");
     }
 
     resize() {
@@ -241,31 +240,7 @@ class ResourceGraph {
             .append("title")
             .text(n => n.stateIcon.tooltip);
 
-        newNodes.transition()
-            .attr("opacity", 1);
-
-        this.nodeElements = newNodes.merge(this.nodeElements);
-
-        // Update text
-        this.textElements = this.textElementsG
-            .selectAll("g")
-            .data(this.nodes, n => n.id);
-
-        // Remove excess text:
-        this.textElements
-            .exit()
-            .transition()
-            .attr("opacity", 0)
-            .remove();
-
-        var newText = this.textElements
-            .enter().append("g")
-            .attr("opacity", 0)
-            .call(this.dragDrop)
-            .on('mouseover', this.hoverNode)
-            .on('mouseout', this.unHoverNode);
-
-        newText
+        newNodes
             .append("text")
             .text(function (node) {
                 return node.label;
@@ -279,21 +254,11 @@ class ResourceGraph {
             .attr("stroke-linejoin", "round")
             .attr("dy", 71)
             .on('click', this.selectNode);
-/*
-        newText
-            .append("text")
-            .text(function (node) {
-                return node.endpointUrl;
-            })
-            .attr("font-size", 15)
-            .attr("text-anchor", "middle")
-            .attr("dy", 50)
-            .on('click', this.selectNode);
-            */
-        newText.transition()
+
+        newNodes.transition()
             .attr("opacity", 1);
 
-        this.textElements = newText.merge(this.textElements);
+        this.nodeElements = newNodes.merge(this.nodeElements);
 
         // Update links
         this.linkElements = this.linkElementsG
@@ -325,13 +290,7 @@ class ResourceGraph {
    }
 
     onTick = () => {
-        //this.nodeElements
-        //    .attr('cx', function (node) { return node.x })
-        //    .attr('cy', function (node) { return node.y });
-
         this.nodeElements.attr("transform", function (d) { return "translate(" + d.x + "," + d.y + ")"; });
-        this.textElements.attr("transform", function (d) { return "translate(" + d.x + "," + d.y + ")"; });
-
         this.linkElements
             .attr('x1', function (link) { return link.source.x })
             .attr('y1', function (link) { return link.source.y })
@@ -363,6 +322,18 @@ class ResourceGraph {
     }
 
     selectNode = (event) => {
+        //var previousSelectedNode = this.selectedNode;
+
+        //var currentNodeElement = d3.select(event.target);
+
+        //currentNodeElement
+        //    .transition()
+        //    .duration(300)
+        //    .style("r", "80")
+        //    .on("end", s => {
+        //        //alert('hi');
+        //    });
+
         this.selectedNode = event.target.__data__;
 
         this.updateNodeHighlights(null);
@@ -405,13 +376,6 @@ class ResourceGraph {
                 return 'resource-group-highlight';
             }
             return 'resource-group';
-        });
-        this.textElements.attr('class', (node) => {
-            if (this.nodeEquals(node, this.selectedNode)) {
-                return 'resource-name-selected';
-            }
-
-            return 'resource-name';
         });
         this.linkElements.attr('class', (link) => {
             var nodes = [];
