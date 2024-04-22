@@ -147,10 +147,16 @@ class ResourceGraph {
                     label: resource.displayName,
                     endpointUrl: resource.endpointUrl,
                     endpointText: resource.endpointText,
-                    color: resource.resourceIconColor,
-                    icon: resource.resourceIcon,
-                    stateIcon: resource.stateIcon,
-                    stateIconColor: resource.stateIconColor
+                    resourceIcon: {
+                        path: resource.resourceIcon.path,
+                        color: resource.resourceIcon.color,
+                        tooltip: resource.resourceIcon.tooltip
+                    },
+                    stateIcon: {
+                        path: resource.stateIcon.path,
+                        color: resource.stateIcon.color,
+                        tooltip: resource.stateIcon.tooltip
+                    }
                 };
             });
 
@@ -201,8 +207,11 @@ class ResourceGraph {
             .append("g")
             .attr("transform", "scale(2.1) translate(-12,-17)")
             .append("path")
-            .attr("fill", n => n.color)
-            .attr("d", n => n.icon);
+            .attr("fill", n => n.resourceIcon.color)
+            .attr("d", n => n.resourceIcon.path)
+            .append("title")
+            .text(n => n.resourceIcon.tooltip);
+
         newNodes
             .append("text")
             .text(function (node) {
@@ -222,11 +231,15 @@ class ResourceGraph {
             .attr("r", 8)
             .attr("cy", 8)
             .attr("cx", 8)
-            .attr("class", "resource-status-circle");
+            .attr("class", "resource-status-circle")
+            .append("title")
+            .text(n => n.stateIcon.tooltip);
         statusGroup
             .append("path")
-            .attr("d", n => n.stateIcon)
-            .attr("fill", n => n.stateIconColor);
+            .attr("d", n => n.stateIcon.path)
+            .attr("fill", n => n.stateIcon.color)
+            .append("title")
+            .text(n => n.stateIcon.tooltip);
 
         newNodes.transition()
             .attr("opacity", 1);

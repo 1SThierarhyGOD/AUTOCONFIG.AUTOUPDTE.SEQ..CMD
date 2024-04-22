@@ -287,13 +287,21 @@ public partial class Resources : ComponentBase, IAsyncDisposable, IPageWithSessi
                 ResourceType = r.ResourceType,
                 DisplayName = ResourceViewModel.GetResourceName(r, _resourceByName),
                 Uid = r.Uid,
-                ResourceIconColor = color,
-                ResourceIcon = icon,
+                ResourceIcon = new IconDto
+                {
+                    Path = icon,
+                    Color = color,
+                    Tooltip = r.ResourceType
+                },
+                StateIcon = new IconDto
+                {
+                    Path = GetIconPathData(stateIcon.Icon),
+                    Color = stateIcon.Color.ToAttributeValue()!,
+                    Tooltip = stateIcon.Tooltip ?? r.State
+                },
                 ReferencedNames = resolvedNames.ToImmutableArray(),
                 EndpointUrl = endpoint?.Url,
-                EndpointText = resolvedEndpointText,
-                StateIcon = GetIconPathData(stateIcon.Icon),
-                StateIconColor = stateIcon.Color.ToAttributeValue()!
+                EndpointText = resolvedEndpointText
             };
 
             return dto;
@@ -345,13 +353,18 @@ public partial class Resources : ComponentBase, IAsyncDisposable, IPageWithSessi
         public required string ResourceType { get; init; }
         public required string DisplayName { get; init; }
         public required string Uid { get; init; }
-        public required string ResourceIcon { get; init; }
-        public required string ResourceIconColor { get; init; }
-        public required string StateIcon { get; init; }
-        public required string StateIconColor { get; init; }
+        public required IconDto ResourceIcon { get; init; }
+        public required IconDto StateIcon { get; init; }
         public required string? EndpointUrl { get; init; }
         public required string? EndpointText { get; init; }
         public required ImmutableArray<string> ReferencedNames { get; init; }
+    }
+
+    private class IconDto
+    {
+        public required string Path { get; init; }
+        public required string Color { get; init; }
+        public required string? Tooltip { get; init; }
     }
 
     private bool ApplicationErrorCountsChanged(Dictionary<OtlpApplication, int> newApplicationUnviewedErrorCounts)
