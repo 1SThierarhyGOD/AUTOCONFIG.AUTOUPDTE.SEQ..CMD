@@ -56,7 +56,7 @@ public class DistributedApplicationFactory(Type entryPoint) : IDisposable, IAsyn
     /// Creates an instance of <see cref="HttpClient"/> that is configured to route requests to the specified resource and endpoint.
     /// </summary>
     /// <returns>The <see cref="HttpClient"/>.</returns>
-    public HttpClient CreateHttpClient(string resourceName, string? endpointName = default)
+    public HttpClient CreateHttpClient(string resourceName, string endpointName)
     {
         return GetStartedApplication().CreateHttpClient(resourceName, endpointName);
     }
@@ -80,7 +80,7 @@ public class DistributedApplicationFactory(Type entryPoint) : IDisposable, IAsyn
     /// <returns>A URI representation of the endpoint.</returns>
     /// <exception cref="ArgumentException">The resource was not found, no matching endpoint was found, or multiple endpoints were found.</exception>
     /// <exception cref="InvalidOperationException">The resource has no endpoints.</exception>
-    public Uri GetEndpoint(string resourceName, string? endpointName = default)
+    public Uri GetEndpoint(string resourceName, string endpointName)
     {
         return GetStartedApplication().GetEndpoint(resourceName, endpointName);
     }
