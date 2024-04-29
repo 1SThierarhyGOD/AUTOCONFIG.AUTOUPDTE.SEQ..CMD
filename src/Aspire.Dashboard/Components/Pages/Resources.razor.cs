@@ -16,6 +16,7 @@ using Aspire.Dashboard.Utils;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using Microsoft.FluentUI.AspNetCore.Components;
+using Microsoft.FluentUI.AspNetCore.Components.Extensions;
 using Microsoft.JSInterop;
 
 namespace Aspire.Dashboard.Components.Pages;
