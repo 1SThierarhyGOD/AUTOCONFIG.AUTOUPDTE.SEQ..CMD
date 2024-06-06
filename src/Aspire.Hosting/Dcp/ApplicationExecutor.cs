@@ -1016,6 +1016,7 @@ internal sealed class ApplicationExecutor(ILogger<ApplicationExecutor> logger,
             if (!string.IsNullOrEmpty(configuration[DebugSessionPortVar]))
             {
                 exeSpec.ExecutionType = ExecutionType.IDE;
+                exeSpec.AmbientEnvironment = new AmbientEnvironment { Behavior = AmbientEnvironmentBehavior.DoNotInherit };
 
                 if (_dcpInfo?.Version?.CompareTo(DcpVersion.MinimumVersionIdeProtocolV1) >= 0)
                 {

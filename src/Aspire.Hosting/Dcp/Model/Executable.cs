@@ -32,6 +32,27 @@ internal sealed class ExecutableSpec
     // The execution type for the Executable
     [JsonPropertyName("executionType")]
     public string? ExecutionType { get; set; }
+
+    // Controls application of ambient environment variables to the Executable.
+    [JsonPropertyName("ambientEnvironment")]
+    public AmbientEnvironment? AmbientEnvironment { get; set; }
+}
+
+internal static class AmbientEnvironmentBehavior
+{
+    // The executable will inherit the environment of the controller process.
+    // This is the default behavior.
+    public const string Inherit = "Inherit";
+
+    // The executable will not inherit the environment of the controller process.
+    public const string DoNotInherit = "DoNotInherit";
+}
+
+internal sealed class  AmbientEnvironment
+{
+    // Specifies the default behavior for applying ambient environment variables to the Executable.
+    [JsonPropertyName("behavior")]
+    public string? Behavior { get; set; }
 }
 
 internal static class ExecutionType
