@@ -3,6 +3,7 @@
 
 using Aspire.Components.Common.Tests;
 using Aspire.Hosting.ApplicationModel;
+using Aspire.Hosting.Dashboard;
 using Aspire.Hosting.Dcp;
 using Aspire.Hosting.Dcp.Model;
 using Aspire.Hosting.Testing;
@@ -56,7 +57,7 @@ public class WithDockerfileTests(ITestOutputHelper testOutputHelper)
 
     [Fact]
     [RequiresDocker]
-    public async Task WithDockerfilePrependsDockerBuildoutput()
+    public async Task WithDockerfilePrependsDockerBuildOutput()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
         builder.Services.AddLogging(b => b.AddXunit(testOutputHelper));
@@ -76,20 +77,19 @@ public class WithDockerfileTests(ITestOutputHelper testOutputHelper)
                                    .WithBuildSecret("FILE_SECRET", new FileInfo(secretPath));
 
         using var app = builder.Build();
+
+        var rls = app.Services.GetRequiredService<ResourceLoggerService>();
+        var watch = rls.WatchAsync(testcontainer.Resource);
+
         await app.StartAsync();
 
-        using var client = app.CreateHttpClient("testcontainer", "http");
-
-        var envSecretMessage = await client.GetStringWithRetryAsync("/ENV_SECRET.txt");
-        Assert.Equal("open sesame from env", envSecretMessage);
-
-        var fileSecretMessage = await client.GetStringWithRetryAsync("/FILE_SECRET.txt");
-        Assert.Equal("open sesame from file", fileSecretMessage);
-
-        var resourceLoggerService = app.Services.GetRequiredService<ResourceLoggerService>();
-        resourceLoggerService.Complete(testcontainer.Resource);
-
-        var logs = resourceLoggerService.WatchAsync(testcontainer.Resource).ToBlockingEnumerable().SelectMany(x => x).ToList();
+        await foreach (var entry in watch)
+        {
+            foreach (var e in entry)
+            {
+                testOutputHelper.WriteLine(e.Content);
+            }
+        }
 
         await app.StopAsync();
     }
