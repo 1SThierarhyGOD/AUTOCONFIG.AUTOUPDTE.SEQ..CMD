@@ -56,6 +56,46 @@ public class WithDockerfileTests(ITestOutputHelper testOutputHelper)
 
     [Fact]
     [RequiresDocker]
+    public async Task WithDockerfilePrependsDockerBuildoutput()
+    {
+        using var builder = TestDistributedApplicationBuilder.Create();
+        builder.Services.AddLogging(b => b.AddXunit(testOutputHelper));
+
+        var (tempContextPath, tempDockerfilePath) = await CreateTemporaryDockerfileAsync(includeSecrets: true);
+
+        var parameter = builder.AddParameter("secret", secret: true);
+        builder.Configuration["Parameters:secret"] = "open sesame from env";
+
+        var secretPath = Path.Combine(tempContextPath, "secret.txt");
+        File.WriteAllText(secretPath, "open sesame from file");
+
+        var testcontainer = builder.AddContainer("testcontainer", "testimage")
+                                   .WithHttpEndpoint(targetPort: 80)
+                                   .WithDockerfile(tempContextPath, tempDockerfilePath)
+                                   .WithBuildSecret("ENV_SECRET", parameter)
+                                   .WithBuildSecret("FILE_SECRET", new FileInfo(secretPath));
+
+        using var app = builder.Build();
+        await app.StartAsync();
+
+        using var client = app.CreateHttpClient("testcontainer", "http");
+
+        var envSecretMessage = await client.GetStringWithRetryAsync("/ENV_SECRET.txt");
+        Assert.Equal("open sesame from env", envSecretMessage);
+
+        var fileSecretMessage = await client.GetStringWithRetryAsync("/FILE_SECRET.txt");
+        Assert.Equal("open sesame from file", fileSecretMessage);
+
+        var resourceLoggerService = app.Services.GetRequiredService<ResourceLoggerService>();
+        resourceLoggerService.Complete(testcontainer.Resource);
+
+        var logs = resourceLoggerService.WatchAsync(testcontainer.Resource).ToBlockingEnumerable().SelectMany(x => x).ToList();
+
+        await app.StopAsync();
+    }
+
+    [Fact]
+    [RequiresDocker]
     public async Task WithDockerfileLaunchesContainerSuccessfully()
     {
         using var builder = TestDistributedApplicationBuilder.Create();
