@@ -1,0 +1,86 @@
+.my-jumbotron {
+    background-color: #eee;
+    border-radius: 5px;
+    margin: 16px auto;
+    padding: 40px;
+    width: 75%;
+}
+
+.my-jumbotron p {
+    font-size: 21px;
+    font-weight: 200;
+    margin-bottom: 15px;
+}
+
+#your-name {
+    display: inline-block;
+    font-style: italic;
+    margin-right: 25px;
+}
+
+#signed-in {
+    color: green;
+    font-weight: 600;
+    padding: 5px 0;
+}
+
+#display {
+    display: flex;
+    align-items: stretch;
+    flex-direction: row;
+    height: 200px;
+    justify-content: space-around;
+    margin: 20px auto;
+    width: 75%;
+}
+
+#jwt {
+    width: 28%; 
+    background-color: #fcfcfc; 
+    border-radius: 5px; 
+    border:1px solid #ddd; 
+    font-family: 'Courier New', Helvetica, sans-serif;
+    font-size: 10pt;
+    overflow-wrap: break-word;
+    padding: 5px;
+}
+
+#call-webapi {
+    width: 28%;
+}
+
+#api-result {
+    background-color: #fcfcfc; 
+    border-radius: 5px; 
+    border:1px solid #ddd; 
+    font-family: 'Courier New', Helvetica, sans-serif;
+    font-size: 10pt;
+    height:188px; 
+    overflow-wrap: break-word;
+    padding: 5px;
+    margin-bottom: 10px;
+}
+
+#result {
+    width: 28%;
+    background-color: #fcfcfc; 
+    border-radius: 5px; 
+    border:1px solid #ddd; 
+    font-family: 'Courier New', Helvetica, sans-serif;
+    font-size: 10pt;
+    overflow-wrap: break-word;
+    padding: 5px;
+}
+
+.spinner { 
+    margin: 20px auto;
+    opacity: .7;
+}
+
+.status-ok {
+    color: green;
+}
+
+.status-error {
+    color: red;
+}

@@ -1,0 +1,21 @@
+﻿@page "/"
+@rendermode InteractiveServer
+
+@inject NavigationManager NavigationManager
+
+<div>
+    <h1 class="display-4">Blazor Identity Provider</h1>
+    <p class="lead">
+        This example demonstrates using the ComponentSpace SAML v2.0 library to enable SAML single sign-on
+        as the identity provider.
+    </p>
+    <button @onclick="InitiateSingleSignOn" class="btn btn-primary btn-lg">SSO to the Service Provider</button>
+</div>
+
+@code
+{
+    private void InitiateSingleSignOn()
+    {
+        NavigationManager.NavigateTo("SAML/InitiateSingleSignOn", true);
+    }
+}

@@ -1,0 +1,7 @@
+{
+  "profiles": {
+    "ValidateAgainstSchema": {
+      "commandName": "Project"
+    }
+  }
+}

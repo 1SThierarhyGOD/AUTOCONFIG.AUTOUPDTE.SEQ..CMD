@@ -1,5 +1,4 @@
 <Project>
-  <!-- Workaround https://github.com/dependabot/dependabot-core/issues/8490 -->
   <!-- This file gets imported for out-of-tree test runs also where eng/Versions.props isn't
        available -->
   <Import Project="eng/Versions.props" Condition="'$(MajorVersion)' == '' and Exists('eng/Versions.props')" />

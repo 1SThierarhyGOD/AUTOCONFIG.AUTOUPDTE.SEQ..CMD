@@ -5,6 +5,7 @@
     <ContainerRegistry>localhost:5001</ContainerRegistry>
     <ContainerRepository>api-gateway</ContainerRepository>
     <ContainerBaseImage>mcr.microsoft.com/dotnet/aspnet:8.0</ContainerBaseImage>
+    <UserSecretsId>40173563-e0b5-48d6-975f-36be866642f1</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>

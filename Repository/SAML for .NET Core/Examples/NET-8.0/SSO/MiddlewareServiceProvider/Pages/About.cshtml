@@ -1,0 +1,23 @@
+﻿@page
+@model MiddlewareServiceProvider.Pages.AboutModel
+@{
+    ViewData["Title"] = "About";
+}
+
+<h1>About</h1>
+
+<p>
+    This example demonstrates using the ComponentSpace SAML v2.0 library's authentication handler to enable SAML single sign-on
+    as the service provider.
+</p>
+<p>
+    It includes support for identity provider (IdP) and service provider (SP) initiated
+    single sign-on (SSO) and single logout (SLO).
+</p>
+<h4>Product Information</h4>
+<p>
+    @Model.ProductInformation
+</p>
+<p>
+    This is <environment exclude="Development">not</environment> a development environment.
+</p>

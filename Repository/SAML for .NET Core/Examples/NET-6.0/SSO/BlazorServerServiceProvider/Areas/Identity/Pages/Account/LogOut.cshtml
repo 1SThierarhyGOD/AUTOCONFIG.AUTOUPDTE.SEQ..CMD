@@ -1,0 +1,27 @@
+﻿@page
+@using Microsoft.AspNetCore.Identity
+@using ComponentSpace.Saml2
+
+@attribute [IgnoreAntiforgeryToken]
+@inject SignInManager<IdentityUser> SignInManager
+@inject ISamlServiceProvider SamlServiceProvider
+
+@functions {
+    public async Task<IActionResult> OnPost()
+    {
+        if (SignInManager.IsSignedIn(User))
+        {
+            await SignInManager.SignOutAsync();
+        }
+
+        var ssoState = await SamlServiceProvider.GetStatusAsync();
+
+        if (await ssoState.CanSloAsync())
+        {
+            // Initiate SAML logout.
+            return RedirectToAction("InitiateSingleLogout", "Saml");
+        }
+
+        return Redirect("~/");
+    }
+}

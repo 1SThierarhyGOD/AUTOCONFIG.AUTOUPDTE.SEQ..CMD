@@ -1,0 +1,637 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema",
+  "id": "https://www.componentspace.com/schemas/saml-config-v1.0.json",
+  "title": "SAML Configurations",
+  "description": "The JSON schema for SAML configurations",
+  "definitions": {
+    "SamlConfiguration": {
+      "type": "object",
+      "properties": {
+        "Name": {
+          "type": "string",
+          "description": "The unique configuration name."
+        },
+        "LocalIdentityProviderConfiguration": {
+          "$ref": "#/definitions/LocalIdentityProviderConfiguration",
+          "description": "The local identity provider."
+        },
+        "LocalServiceProviderConfiguration": {
+          "$ref": "#/definitions/LocalServiceProviderConfiguration",
+          "description": "The local service provider."
+        },
+        "PartnerIdentityProviderConfigurations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/PartnerIdentityProviderConfiguration"
+          },
+          "description": "The partner identity providers."
+        },
+        "PartnerServiceProviderConfigurations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/PartnerServiceProviderConfiguration"
+          },
+          "description": "The partner service providers."
+        }
+      }
+    },
+    "LocalIdentityProviderConfiguration": {
+      "type": "object",
+      "properties": {
+        "SingleSignOnServiceUrl": {
+          "type": "string",
+          "description": "The SSO service URL."
+        }
+      },
+      "allOf": [
+        { "$ref": "#/definitions/LocalProviderConfiguration" }
+      ]
+    },
+    "LocalServiceProviderConfiguration": {
+      "type": "object",
+      "properties": {
+        "AssertionConsumerServiceUrl": {
+          "type": "string",
+          "description": "The ACS URL."
+        }
+      },
+      "allOf": [
+        { "$ref": "#/definitions/LocalProviderConfiguration" }
+      ]
+    },
+    "PartnerIdentityProviderConfiguration": {
+      "type": "object",
+      "properties": {
+        "SingleSignOnServiceUrl": {
+          "type": "string",
+          "description": "The SSO service URL."
+        },
+        "SingleSignOnServiceBinding": {
+          "type": "string",
+          "enum": [
+            "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect",
+            "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
+            "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact"
+          ],
+          "default": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect",
+          "description": "The SSO service binding."
+        },
+        "SignAuthnRequest": {
+          "type": "boolean",
+          "default": "true",
+          "description": "Sign authenticaton requests."
+        },
+        "ForceAuthn": {
+          "type": "boolean",
+          "default": "false",
+          "description": "Force authenticaton."
+        },
+        "WantAssertionOrResponseSigned": {
+          "type": "boolean",
+          "default": "true",
+          "description": "Either SAML responses or assertions must be signed."
+        },
+        "WantSamlResponseSigned": {
+          "type": "boolean",
+          "default": "false",
+          "description": "SAML responses must be signed."
+        },
+        "WantAssertionSigned": {
+          "type": "boolean",
+          "default": "false",
+          "description": "SAML assertions must be signed."
+        },
+        "WantAssertionEncrypted": {
+          "type": "boolean",
+          "default": "false",
+          "description": "SAML assertions must be encrypted."
+        },
+        "WantNameIDEncrypted": {
+          "type": "boolean",
+          "default": "false",
+          "description": "Name IDS must be encrypted."
+        },
+        "ProviderName": {
+          "type": "string",
+          "description": "The provider name."
+        },
+        "RequestedAuthnContexts": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "The requested authentication contexts."
+        },
+        "RequestedAuthnContextComparison": {
+          "type": "string",
+          "enum": [ "exact", "minimum", "maximum", "better" ],
+          "description": "The requested authentication context comparison."
+        },
+        "ExpectedAuthnContext": {
+          "type": "string",
+          "description": "The expected returned authentication context."
+        },
+        "OverridePendingAuthnRequest": {
+          "type": "boolean",
+          "default": "false",
+          "description": "Override pending authentication requests."
+        },
+        "DisableIdPInitiatedSso": {
+          "type": "boolean",
+          "default": "false",
+          "description": "Disable IdP-initiated SSO."
+        },
+        "DisableAssertionReplayCheck": {
+          "type": "boolean",
+          "default": "false",
+          "description": "Disable assertion replay checks."
+        },
+        "DisableRecipientCheck": {
+          "type": "boolean",
+          "default": "false",
+          "description": "Disable recipient checks."
+        },
+        "DisableTimePeriodCheck": {
+          "type": "boolean",
+          "default": "false",
+          "description": "Disable time period checks."
+        },
+        "DisableAudienceRestrictionCheck": {
+          "type": "boolean",
+          "default": "false",
+          "description": "Disable audience restriction checks."
+        },
+        "DisableAuthnContextCheck": {
+          "type": "boolean",
+          "default": "false",
+          "description": "Disable authentication context checks."
+        }
+      },
+      "allOf": [
+        { "$ref": "#/definitions/PartnerProviderConfiguration" }
+      ]
+    },
+    "PartnerServiceProviderConfiguration": {
+      "type": "object",
+      "properties": {
+        "AssertionConsumerServiceUrl": {
+          "type": "string",
+          "description": "The ACS URL."
+        },
+        "ValidAssertionConsumerServiceUrls": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "The valid assertion consumer service URLs."
+        },
+        "WantAuthnRequestSigned": {
+          "type": "boolean",
+          "default": "true",
+          "description": "Authentication requests must be signed."
+        },
+        "SignSamlResponse": {
+          "type": "boolean",
+          "default": "false",
+          "description": "Sign SAML responses."
+        },
+        "SignAssertion": {
+          "type": "boolean",
+          "default": "true",
+          "description": "Sign SAML assertions."
+        },
+        "EncryptAssertion": {
+          "type": "boolean",
+          "default": "false",
+          "description": "Encrypt SAML assertions."
+        },
+        "EncryptNameID": {
+          "type": "boolean",
+          "default": "false",
+          "description": "Encrypt Name IDs."
+        },
+        "AssertionLifeTime": {
+          "type": "string",
+          "default": "00:03:00",
+          "description": "The SAML assertion lifetime (hh:mm:ss)."
+        },
+        "AuthnContext": {
+          "type": "string",
+          "description": "The authentication context to include in the SAML assertion."
+        },
+        "RelayState": {
+          "type": "string",
+          "description": "The relay state sent during IdP-initiated SSO."
+        }
+      },
+      "allOf": [
+        { "$ref": "#/definitions/PartnerProviderConfiguration" }
+      ]
+    },
+    "LocalProviderConfiguration": {
+      "type": "object",
+      "properties": {
+        "DisableSchemaCheck": {
+          "type": "boolean",
+          "default": "false",
+          "description": "Disable checking the message against the XML schema."
+        },
+        "ResolveToHttps": {
+          "type": "boolean",
+          "default": "true",
+          "description": "Resolve local URLs to HTTPS."
+        },
+        "SingleLogoutServiceUrl": {
+          "type": "string",
+          "description": "The SLO service URL."
+        },
+        "ArtifactResolutionServiceUrl": {
+          "type": "string",
+          "description": "The artifact resolution service URL."
+        }
+      },
+      "allOf": [
+        { "$ref": "#/definitions/ProviderConfiguration" }
+      ]
+    },
+    "PartnerProviderConfiguration": {
+      "type": "object",
+      "properties": {
+        "PartnerCertificates": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Certificate"
+          },
+          "description": "The partner certificates."
+        },
+        "AssertionConsumerServiceBinding": {
+          "type": "string",
+          "enum": [
+            "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
+            "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact"
+          ],
+          "default": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
+          "description": "The ACS binding."
+        },
+        "SingleLogoutServiceUrl": {
+          "type": "string",
+          "description": "The SLO service URL."
+        },
+        "SingleLogoutServiceResponseUrl": {
+          "type": "string",
+          "description": "The SLO service response URL."
+        },
+        "SingleLogoutServiceBinding": {
+          "type": "string",
+          "enum": [
+            "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect",
+            "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
+            "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact"
+          ],
+          "default": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect",
+          "description": "The SLO service binding."
+        },
+        "ArtifactResolutionServiceUrl": {
+          "type": "string",
+          "description": "The artifact resolution service URL."
+        },
+        "ArtifactEncoding": {
+          "type": "string",
+          "enum": [ "Form", "Url" ],
+          "default": "Url",
+          "description": "The artifact encoding."
+        },
+        "LogoutRequestLifeTime": {
+          "type": "string",
+          "default": "00:03:00",
+          "description": "The SLO request lifetime (hh:mm:ss)."
+        },
+        "SignLogoutRequest": {
+          "type": "boolean",
+          "default": "true",
+          "description": "Sign logout requests."
+        },
+        "SignLogoutResponse": {
+          "type": "boolean",
+          "default": "true",
+          "description": "Sign logout responses."
+        },
+        "WantLogoutRequestSigned": {
+          "type": "boolean",
+          "default": "true",
+          "description": "Logout requests must be signed."
+        },
+        "WantLogoutResponseSigned": {
+          "type": "boolean",
+          "default": "true",
+          "description": "Logout responses must be signed."
+        },
+        "SignArtifactResolve": {
+          "type": "boolean",
+          "default": "false",
+          "description": "Sign artifact resolve requests."
+        },
+        "SignArtifactResponse": {
+          "type": "boolean",
+          "default": "false",
+          "description": "Sign artifact resolve requests."
+        },
+        "WantArtifactResolveSigned": {
+          "type": "boolean",
+          "default": "false",
+          "description": "Artifact resolve requests must be signed."
+        },
+        "WantArtifactResponseSigned": {
+          "type": "boolean",
+          "default": "false",
+          "description": "Artifact responses must be signed."
+        },
+        "EncryptLogoutNameID": {
+          "type": "boolean",
+          "default": "false",
+          "description": "Encrypt the Name ID in the logout request."
+        },
+        "IssuerFormat": {
+          "type": "string",
+          "description": "The format of the issuer field."
+        },
+        "IssuerQualifier": {
+          "type": "string",
+          "description": "The qualifier of the issuer field."
+        },
+        "NameIDFormat": {
+          "type": "string",
+          "description": "The format of the name ID field."
+        },
+        "NameIDQualifier": {
+          "type": "string",
+          "description": "The qualifier of the name ID field."
+        },
+        "DigestAlgorithm": {
+          "type": "string",
+          "enum": [
+            "http://www.w3.org/2000/09/xmldsig#sha1",
+            "http://www.w3.org/2001/04/xmlenc#sha256",
+            "http://www.w3.org/2001/04/xmldsig-more#sha384",
+            "http://www.w3.org/2001/04/xmlenc#sha512"
+          ],
+          "default": "http://www.w3.org/2001/04/xmlenc#sha256",
+          "description": "The digest algorithm for signature generation."
+        },
+        "SignatureAlgorithm": {
+          "type": "string",
+          "enum": [
+            "http://www.w3.org/2000/09/xmldsig#rsa-sha1",
+            "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256",
+            "http://www.w3.org/2001/04/xmldsig-more#rsa-sha384",
+            "http://www.w3.org/2001/04/xmldsig-more#rsa-sha512",
+            "http://www.w3.org/2007/05/xmldsig-more#sha1-rsa-MGF1",
+            "http://www.w3.org/2007/05/xmldsig-more#sha256-rsa-MGF1",
+            "http://www.w3.org/2007/05/xmldsig-more#sha384-rsa-MGF1",
+            "http://www.w3.org/2007/05/xmldsig-more#sha512-rsa-MGF1",
+            "http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha1",
+            "http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha256",
+            "http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha384",
+            "http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha512"
+          ],
+          "default": "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256",
+          "description": "The signature algorithm for signature generation."
+        },
+        "WantDigestAlgorithm": {
+          "type": "string",
+          "enum": [
+            "http://www.w3.org/2000/09/xmldsig#sha1",
+            "http://www.w3.org/2001/04/xmlenc#sha256",
+            "http://www.w3.org/2001/04/xmldsig-more#sha384",
+            "http://www.w3.org/2001/04/xmlenc#sha512"
+          ],
+          "description": "The expected digest algorithm for signature verification."
+        },
+        "WantSignatureAlgorithm": {
+          "type": "string",
+          "enum": [
+            "http://www.w3.org/2000/09/xmldsig#rsa-sha1",
+            "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256",
+            "http://www.w3.org/2001/04/xmldsig-more#rsa-sha384",
+            "http://www.w3.org/2001/04/xmldsig-more#rsa-sha512",
+            "http://www.w3.org/2007/05/xmldsig-more#sha1-rsa-MGF1",
+            "http://www.w3.org/2007/05/xmldsig-more#sha256-rsa-MGF1",
+            "http://www.w3.org/2007/05/xmldsig-more#sha384-rsa-MGF1",
+            "http://www.w3.org/2007/05/xmldsig-more#sha512-rsa-MGF1",
+            "http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha1",
+            "http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha256",
+            "http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha384",
+            "http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha512"
+          ],
+          "description": "The expected signature algorithm for signature verification."
+        },
+        "KeyEncryptionAlgorithm": {
+          "type": "string",
+          "enum": [
+            "http://www.w3.org/2001/04/xmlenc#rsa-1_5",
+            "http://www.w3.org/2001/04/xmlenc#rsa-oaep-mgf1p",
+            "http://www.w3.org/2009/xmlenc11#rsa-oaep"
+          ],
+          "default": "http://www.w3.org/2001/04/xmlenc#rsa-oaep-mgf1p",
+          "description": "The key encryption algorithm for XML encryption."
+        },
+        "KeyEncryptionDigestAlgorithm": {
+          "type": "string",
+          "enum": [
+            "http://www.w3.org/2000/09/xmldsig#sha1",
+            "http://www.w3.org/2001/04/xmlenc#sha256",
+            "http://www.w3.org/2001/04/xmldsig-more#sha384",
+            "http://www.w3.org/2001/04/xmlenc#sha512"
+          ],
+          "default": "http://www.w3.org/2000/09/xmldsig#sha1",
+          "description": "The key encryption digest algorithm for XML encryption."
+        },
+        "KeyEncryptionMaskGenerationFunction": {
+          "type": "string",
+          "enum": [
+            "http://www.w3.org/2009/xmlenc11#mgf1sha1",
+            "http://www.w3.org/2009/xmlenc11#mgf1sha256",
+            "http://www.w3.org/2009/xmlenc11#mgf1sha384",
+            "http://www.w3.org/2009/xmlenc11#mgf1sha512"
+          ],
+          "default": "http://www.w3.org/2009/xmlenc11#mgf1sha1",
+          "description": "The key encryption mask generation function for XML encryption."
+        },
+        "DataEncryptionAlgorithm": {
+          "type": "string",
+          "enum": [
+            "http://www.w3.org/2001/04/xmlenc#tripledes-cbc",
+            "http://www.w3.org/2001/04/xmlenc#aes128-cbc",
+            "http://www.w3.org/2001/04/xmlenc#aes192-cbc",
+            "http://www.w3.org/2001/04/xmlenc#aes256-cbc",
+            "http://www.w3.org/2009/xmlenc11#aes128-gcm",
+            "http://www.w3.org/2009/xmlenc11#aes192-gcm",
+            "http://www.w3.org/2009/xmlenc11#aes256-gcm"
+          ],
+          "default": "http://www.w3.org/2001/04/xmlenc#aes256-cbc",
+          "description": "The data encryption algorithm for XML encryption."
+        },
+        "ClockSkew": {
+          "type": "string",
+          "default": "00:03:00",
+          "description": "The permitted skew between local and partner computer clocks (hh:mm:ss)."
+        },
+        "UseEmbeddedCertificate": {
+          "type": "boolean",
+          "default": "false",
+          "description": "Verify the XML signature using the certificate embedded in the signature."
+        },
+        "EnableSha1Support": {
+          "type": "boolean",
+          "default": "false",
+          "description": "Enable SHA-1 support."
+        },
+        "DisableDestinationCheck": {
+          "type": "boolean",
+          "default": "false",
+          "description": "Disable checking the destination field."
+        },
+        "DisableInboundLogout": {
+          "type": "boolean",
+          "default": "false",
+          "description": "Disable inbound logout."
+        },
+        "DisableOutboundLogout": {
+          "type": "boolean",
+          "default": "false",
+          "description": "Disable outbound logout."
+        },
+        "DisableInResponseToCheck": {
+          "type": "boolean",
+          "default": "false",
+          "description": "Disable checking the in-response-to field."
+        },
+        "DisablePendingLogoutCheck": {
+          "type": "boolean",
+          "default": "false",
+          "description": "Disable checking if a logout is pending."
+        },
+        "DisableLogoutResponseStatusCheck": {
+          "type": "boolean",
+          "default": "false",
+          "description": "Disable checking the logout response status."
+        },
+        "DisableClearAllSessionsOnLogout": {
+          "type": "boolean",
+          "default": "false",
+          "description": "Disable clearing all SSO sessions on logout."
+        },
+        "MappingRules": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MappingRule"
+          },
+          "description": "The SAML identity mapping rules."
+        }
+      },
+      "allOf": [
+        { "$ref": "#/definitions/ProviderConfiguration" }
+      ]
+    },
+    "ProviderConfiguration": {
+      "type": "object",
+      "properties": {
+        "Name": {
+          "type": "string",
+          "description": "The provider name."
+        },
+        "Description": {
+          "type": "string",
+          "description": "A description of the provider."
+        },
+        "LocalCertificates": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Certificate"
+          },
+          "description": "The local certificates."
+        }
+      },
+      "required": [ "Name" ]
+    },
+    "Certificate": {
+      "type": "object",
+      "properties": {
+        "Use": {
+          "type": "string",
+          "enum": [ "Encryption", "Signature", "Any" ],
+          "default": "Any",
+          "description": "The certificate use."
+        },
+        "String": {
+          "type": "string",
+          "description": "The certificate base-64 encoded string."
+        },
+        "FileName": {
+          "type": "string",
+          "description": "The path to a certificate file."
+        },
+        "Password": {
+          "type": "string",
+          "description": "The password protecting the certificate."
+        },
+        "StoreLocation": {
+          "type": "string",
+          "enum": [ "CurrentUser", "LocalMachine" ],
+          "default": "LocalMachine",
+          "description": "The Windows certificate store location."
+        },
+        "StoreName": {
+          "type": "string",
+          "default": "My",
+          "description": "The Windows certificate store name."
+        },
+        "SerialNumber": {
+          "type": "string",
+          "description": "The certificate serial number."
+        },
+        "Thumbprint": {
+          "type": "string",
+          "description": "The certificate thumbprint."
+        },
+        "SubjectName": {
+          "type": "string",
+          "description": "The certificate subject name."
+        },
+        "Key": {
+          "type": "string",
+          "description": "The configuration key into the Azure key vault."
+        }
+      }
+    },
+    "MappingRule": {
+      "type": "object",
+      "properties": {
+        "Rule": {
+          "type": "string",
+          "enum": [ "Clear", "Constant", "Copy", "Keep", "Remove", "Rename" ],
+          "description": "The mapping rule name."
+        },
+        "Name": {
+          "type": "string",
+          "description": "The SAML attribute name."
+        },
+        "Value": {
+          "type": "string",
+          "description": "The value associated with the rule."
+        }
+      }
+    }
+  },
+  "type": "object",
+  "properties": {
+    "Configurations": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/SamlConfiguration"
+      },
+      "description": "The SAML configurations."
+    }
+  },
+  "required": [ "Configurations" ]
+}

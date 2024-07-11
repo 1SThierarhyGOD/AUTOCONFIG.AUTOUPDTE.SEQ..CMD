@@ -1,0 +1,29 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home";
+}
+
+<div class="jumbotron">
+    <h1 class="display-4">Identity Client</h1>
+    <p class="lead">
+        This example demonstrates acting as an OpenID Connect client with IdentityServer as the authorization server.
+    </p>
+    <p class="lead">
+        IdentityServer uses the ComponentSpace SAML v2.0 library to enable SAML single sign-on
+        as the service provider and delegate authentication to an identity provider.
+    </p>
+    <p class="lead">
+        The flow between the identity client and authorization server is OIDC.
+        The flow between the authorization server and identity provider is SAML.
+    </p>
+
+    @if (User.Identity != null && User.Identity.IsAuthenticated)
+    {
+        <p><a asp-area="" asp-page-handler="logout" class="btn btn-primary btn-lg">Logout</a></p>
+    }
+    else
+    {
+        <p><a asp-area="" asp-page-handler="login" class="btn btn-primary btn-lg">Login</a></p>
+    }
+</div>

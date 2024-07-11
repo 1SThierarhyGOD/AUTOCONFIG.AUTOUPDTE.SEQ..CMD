@@ -1,0 +1,256 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
+buildscript {
+    repositories {
+        mavenCentral()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath "com.google.protobuf:protobuf-gradle-plugin:0.8.13"
+        classpath "gradle.plugin.com.github.johnrengelman:shadow:7.1.1"
+    }
+}
+
+apply plugin: "com.github.johnrengelman.shadow"
+apply plugin: "com.google.protobuf"
+apply plugin: "java"
+apply plugin: "maven-publish"
+
+repositories {
+    mavenCentral()
+    google()
+}
+
+configurations {
+    implementationWindows
+    implementationMacOs
+    implementationLinux
+}
+
+// The repackaging rules are defined in the "shadowJar" task below.
+dependencies {
+    implementation "com.android.tools:common:31.3.0-alpha14"
+    implementation "com.android.tools:r8:3.3.28"
+    implementation "com.android.tools.build:apksig:4.2.0-alpha13"
+    implementation "com.android.tools.ddms:ddmlib:31.3.0-alpha14"
+    implementation "com.android:zipflinger:7.1.0-alpha07"
+
+    shadow "com.android.tools.build:aapt2-proto:7.3.0-alpha07-8248216"
+    shadow "com.google.auto.value:auto-value-annotations:1.6.2"
+    annotationProcessor "com.google.auto.value:auto-value:1.6.2"
+    shadow "com.google.errorprone:error_prone_annotations:2.3.1"
+    shadow "com.google.guava:guava:32.0.1-jre"
+    shadow "com.google.protobuf:protobuf-java:3.22.3"
+    shadow "com.google.protobuf:protobuf-java-util:3.22.3"
+    shadow "com.google.dagger:dagger:2.28.3"
+    annotationProcessor "com.google.dagger:dagger-compiler:2.28.3"
+    shadow "javax.inject:javax.inject:1"
+    shadow("org.bitbucket.b_c:jose4j:0.9.5") {
+        exclude group: "org.slf4j", module: "slf4j-api"
+    }
+    shadow "org.slf4j:slf4j-api:1.7.30"
+
+    implementationWindows "com.android.tools.build:aapt2:8.0.0-alpha07-9193536:windows"
+    implementationMacOs "com.android.tools.build:aapt2:8.0.0-alpha07-9193536:osx"
+    implementationLinux "com.android.tools.build:aapt2:8.0.0-alpha07-9193536:linux"
+
+    compileOnly "org.bouncycastle:bcprov-jdk15on:1.56"
+    compileOnly "org.bouncycastle:bcpkix-jdk15on:1.56"
+    runtimeOnly "org.slf4j:slf4j-jdk14:1.7.30"
+
+    testImplementation "com.android.tools.build:aapt2-proto:7.3.0-alpha07-8248216"
+    testImplementation "com.google.auto.value:auto-value-annotations:1.6.2"
+    testAnnotationProcessor "com.google.auto.value:auto-value:1.6.2"
+    testImplementation "com.google.errorprone:error_prone_annotations:2.3.1"
+    testImplementation "com.google.guava:guava:33.0.0-jre"
+    testImplementation "com.google.truth:truth:1.4.0"
+    testImplementation "com.google.truth.extensions:truth-proto-extension:1.4.0"
+    testImplementation "com.google.jimfs:jimfs:1.1"
+    testImplementation "com.google.protobuf:protobuf-java:3.25.2"
+    testImplementation "com.google.protobuf:protobuf-java-util:3.25.2"
+    testImplementation "org.mockito:mockito-core:2.18.3"
+    testImplementation "junit:junit:4.12"
+    testImplementation "org.bouncycastle:bcprov-jdk15on:1.56"
+    testImplementation "org.bouncycastle:bcpkix-jdk15on:1.56"
+    testImplementation "org.junit.jupiter:junit-jupiter-api:5.2.0"
+    testImplementation "org.junit.vintage:junit-vintage-engine:5.2.0"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.2.0"
+    testImplementation "org.junit.platform:junit-platform-runner:1.2.0"
+    testImplementation "com.google.dagger:dagger:2.28.3"
+    testAnnotationProcessor "com.google.dagger:dagger-compiler:2.28.3"
+    testImplementation "javax.inject:javax.inject:1"
+    testImplementation("org.smali:dexlib2:2.3.4") {
+        exclude group: "com.google.guava", module: "guava"
+    }
+    testImplementation("org.bitbucket.b_c:jose4j:0.9.5") {
+        exclude group: "org.slf4j", module: "slf4j-api"
+    }
+    testImplementation "org.slf4j:slf4j-api:1.7.30"
+    testRuntimeOnly "org.slf4j:slf4j-jdk14:1.7.30"
+}
+
+def osName = System.getProperty("os.name").toLowerCase()
+
+// Use utf-8 instead of the platform default encoding.
+compileJava.options.encoding = "UTF-8"
+compileTestJava.options.encoding = "UTF-8"
+
+// Compile for Java 8.
+if (JavaVersion.current() != JavaVersion.VERSION_1_8) {
+    compileJava.options.release = 8;
+}
+
+test {
+    if (osName.contains("linux")) {
+        environment "AAPT2_PATH", "build/resources/main/linux/aapt2"
+    }
+
+    if (osName.contains("windows")) {
+        environment "AAPT2_PATH", 'build/resources/main/windows/aapt2'
+    }
+
+    if (osName.contains("mac")) {
+        environment "AAPT2_PATH", 'build/resources/main/macos/aapt2'
+    }
+    testLogging {
+        events "passed", "skipped", "failed"
+        showStandardStreams = true
+    }
+
+    reports {
+        html {
+            enabled false
+        }
+    }
+}
+
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:3.25.2"
+    }
+}
+
+publishing {
+    publications {
+        shadow(MavenPublication) { publication ->
+            project.shadow.component(publication)
+
+            groupId = 'com.android.tools.build'
+            artifactId = 'bundletool'
+            version = project.release_version
+
+            pom {
+                licenses {
+                    license {
+                        name = 'The Apache Software License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        distribution = 'repo'
+                    }
+                }
+            }
+
+            pom.withXml { xml ->
+                def jose4jDependencyNode = xml.asNode().dependencies.'*'.find {
+                    it.artifactId.text() == 'jose4j'
+                }
+                if (jose4jDependencyNode != null) {
+                    def exclusionNode = jose4jDependencyNode
+                            .appendNode('exclusions')
+                            .appendNode('exclusion');
+                    exclusionNode.appendNode('groupId', 'org.slf4j')
+                    exclusionNode.appendNode('artifactId', 'slf4j-api')
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            def localRepo = project.hasProperty('localRepo') ?
+                    project.localRepo : "$buildDir/repo"
+
+            url = "file://$localRepo"
+        }
+    }
+}
+
+// Artifact released to Maven.
+shadowJar {
+    archiveBaseName = 'bundletool'
+    archiveClassifier = ''
+
+    // Package all the Android Gradle plugin dependencies that are compiled from
+    // source.
+    dependencies {
+        include(dependency('com.android:zipflinger:.*'))
+        include(dependency {
+            it.moduleGroup.startsWith('com.android.tools')
+        })
+    }
+
+    relocate('com.android', 'shadow.bundletool.com.android') {
+        // BundleTool classes.
+        exclude 'com.android.tools.build.bundletool.**'
+        exclude '/com/android/tools/build/bundletool/**'
+        // Bundle protos.
+        exclude 'com.android.bundle.**'
+        // Aapt protos.
+        exclude 'com.android.aapt.**'
+        // String constants in classes.
+        // For some reason, the Shadow plug-in seems to rename strings in classes too!
+        exclude 'com.android.vending'
+        exclude 'com.android.vending.splits'
+        exclude 'com.android.vending.splits.required'
+        exclude 'com.android.dynamic.apk.fused.modules'
+        exclude 'com.android.tools.build.profiles'
+    }
+
+    // Exclude ddmlib protos from maven jar
+    exclude 'app_processes.proto'
+    exclude 'instrumentation-data.proto'
+}
+
+// Artifact to use as standalone command line tool.
+task executableJar(type: ShadowJar) {
+    archiveBaseName = 'bundletool'
+    archiveClassifier = 'all'
+    from sourceSets.main.output
+    from({ zipTree(project.configurations.implementationWindows.singleFile) }) { into 'windows/' }
+    from({ zipTree(project.configurations.implementationMacOs.singleFile) }) { into 'macos/' }
+    from({ zipTree(project.configurations.implementationLinux.singleFile) }) { into 'linux/' }
+    configurations = [
+            project.configurations.shadow,
+            project.configurations.runtimeClasspath
+    ]
+    manifest {
+        attributes 'Main-Class': 'com.android.tools.build.bundletool.BundleToolMain'
+    }
+    exclude 'META-INF/*.SF'
+    exclude 'META-INF/*.DSA'
+    exclude 'META-INF/*.RSA'
+}
+
+// Unzip the aapt2 dependency jar.
+task unzipAapt2Jar(type: Copy) {
+    if (osName.contains("linux")) {
+        from zipTree(project.configurations.implementationLinux.singleFile)
+        into('build/resources/main/linux')
+    }
+
+    if (osName.contains("windows")) {
+        from zipTree(project.configurations.implementationWindows.singleFile)
+        into('build/resources/main/windows')
+    }
+
+    if (osName.contains("mac")) {
+        from zipTree(project.configurations.implementationMacOs.singleFile)
+        into('build/resources/main/macos')
+    }
+}
+
+task uploadShadow {
+    dependsOn ':publishShadowPublicationToMavenRepository'
+}
+
+compileTestJava.dependsOn(unzipAapt2Jar)

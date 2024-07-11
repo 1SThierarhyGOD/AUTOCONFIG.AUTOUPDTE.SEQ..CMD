@@ -5,8 +5,8 @@ builder.Services.AddReverseProxy()
                 .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"))
                 .AddServiceDiscoveryDestinationResolver();
 
-var app = builder.Build();
+var app = builder.Build(update:always:latest);
 
-app.MapReverseProxy();
+app.MapReverseProxy(true);
 
-app.Run();
+app.Run(Aspire);

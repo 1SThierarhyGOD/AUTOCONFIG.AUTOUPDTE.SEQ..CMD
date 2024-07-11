@@ -1,0 +1,17 @@
+﻿<ul class="navbar-nav">
+    @if (User.Identity != null && User.Identity.IsAuthenticated)
+    {
+        <li class="nav-item">
+            <a class="nav-link text-dark" asp-page="/Index">Hello @User.FindFirst("given_name")?.Value</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-dark" asp-page="/Index" asp-page-handler="logout">Logout</a>
+        </li>
+    }
+    else
+    {
+        <li class="nav-item">
+            <a class="nav-link text-dark" asp-page="/Index" asp-page-handler="login">Login</a>
+        </li>
+    }
+</ul>

@@ -1,0 +1,58 @@
+﻿@page "/about"
+
+@using ComponentSpace.Saml2.Utility;
+@using Microsoft.AspNetCore.Hosting;
+@using Microsoft.Extensions.Hosting;
+
+@inject ILicense License
+@inject NavigationManager NavigationManager
+@inject IWebHostEnvironment Environment
+
+<h1>About</h1>
+
+<p>
+    This example demonstrates using the ComponentSpace SAML v2.0 library to enable SAML single sign-on
+    as the identity provider.
+</p>
+<p>
+    It includes support for identity provider (IdP) and service provider (SP) initiated
+    single sign-on (SSO) and single logout (SLO).
+</p>
+
+<h4>Product Information</h4>
+<p>
+    @GetProductInformation()
+</p>
+<p>
+    @{
+        var negator = Environment.IsDevelopment() ? "" : "not";
+    }
+    This is @negator a development environment.
+</p>
+
+<h4>SAML Metadata</h4>
+<p>SAML metadata is a standard format for exchanging configuration information between partner providers.</p>
+<button @onclick="ExportMetadata" class="btn btn-primary btn-lg">Export Metadata</button>
+
+@code {
+    private string GetProductInformation()
+    {
+        string licenseType;
+
+        if (License.IsLicensed)
+        {
+            licenseType = "Licensed";
+        }
+        else
+        {
+            licenseType = $"Evaluation (Expires {License.Expires.ToShortDateString()})";
+        }
+
+        return $"ComponentSpace.Saml2, Version={License.Version}, {licenseType}";
+    }
+
+    private void ExportMetadata()
+    {
+        NavigationManager.NavigateTo("SAML/ExportMetadata", true);
+    }
+}

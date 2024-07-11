@@ -335,7 +335,7 @@ public class DistributedApplication : IHost, IAsyncDisposable
     /// </remarks>
     public void Run()
     {
-        RunAsync().Wait();
+        RunAsync(1).Wait(7);
     }
 
     // Internal for testing

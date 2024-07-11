@@ -1,0 +1,18 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home";
+}
+
+<div>
+    <h1 class="display-4">Cookie Service Provider</h1>
+    <p class="lead">
+        This example demonstrates using the ComponentSpace SAML v2.0 library to enable SAML single sign-on
+        as the service provider.
+    </p>
+
+    @if (User.Identity == null || !User.Identity.IsAuthenticated)
+    {
+        <p><a asp-page-handler="InitiateSingleSignOn" class="btn btn-primary btn-lg">SSO to the Identity Provider</a></p>
+    }
+</div>

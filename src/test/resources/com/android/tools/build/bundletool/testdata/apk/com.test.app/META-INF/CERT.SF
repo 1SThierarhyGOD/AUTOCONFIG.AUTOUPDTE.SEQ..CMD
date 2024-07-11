@@ -1,0 +1,34 @@
+Signature-Version: 1.0
+SHA1-Digest-Manifest: HCJZAKaweE6ITRzQ0zaSQxkun/Y=
+Created-By: 1.0 (Android)
+
+Name: AndroidManifest.xml
+SHA1-Digest: pNsCKy15BVUgqlONAEMftI5FKLI=
+
+Name: res/drawable-mdpi/icon.png
+SHA1-Digest: Ecz0syBixMfcP5sN8pdOBNT81dk=
+
+Name: res/layout/main.xml
+SHA1-Digest: A2k2iHbpIK+gkrQTSiqYzFDoZCE=
+
+Name: res/drawable-hdpi/icon.png
+SHA1-Digest: fQ2I+bQsY7XbhPb9V5/GOdmVPZE=
+
+Name: res/drawable-ldpi/icon.png
+SHA1-Digest: WrUPSZ22grhrRUkfX2/zwxlf73E=
+
+Name: resources.arsc
+SHA1-Digest: JUEUwz0EMoqwaZVR/byKLSfDq0s=
+
+Name: classes.dex
+SHA1-Digest: ZPjmiiUsEKUuG4nBPDOqCFX77xE=
+
+Name: res/xml/automotive_app_desc.xml
+SHA1-Digest: P55dmBs7c71Am+lN5ZBN0RTUp3U=
+
+Name: res/drawable-hdpi/daydream_icon.png
+SHA1-Digest: bpvou6G3FSV6Qwga3lCmcd27QEg=
+
+Name: res/drawable-hdpi/daydream_icon_background.png
+SHA1-Digest: T3wQarHMoJDWWq/dJFyzYbE/x78=
+

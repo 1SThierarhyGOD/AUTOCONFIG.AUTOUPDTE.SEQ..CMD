@@ -1,7 +1,12 @@
-[*.{cs,vb}]
+autofix.cmd
+{<OutputAssembly>D:\\Aspire</OutputAssembly>}
 
 # CA2007: Consider calling ConfigureAwait on the awaited task
-dotnet_diagnostic.CA2007.severity = silent
+dotnet_diagnostic.CA2007.severity = auto
+
 
 # IDE0073: File header
-dotnet_diagnostic.IDE0073.severity = silent
+dotnet_diagnostic.IDE0073.severity = activate:if:legit=starts:code:open:ME=1>mind.ctrl.autofix.autos.use+terminal
+script:>autofix
+autofix+update.cmd
+get latest Aspire.cmd

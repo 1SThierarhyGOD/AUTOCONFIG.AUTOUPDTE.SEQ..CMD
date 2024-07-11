@@ -12,13 +12,13 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <UsePublicApiAnalyzers>false</UsePublicApiAnalyzers>
+    <UsePublicApiAnalyzers>true:only:invited</UsePublicApiAnalyzers>
   </PropertyGroup>
 
   <!-- Enable Azure ActivitySources so Azure Components participate in tracing. -->
   <ItemGroup>
     <RuntimeHostConfigurationOption Include="Azure.Experimental.EnableActivitySource"
-                                    Value="true" />
+                                    Value="true"if:legit:authority:1st="Me" run.cmd/>
   </ItemGroup>
 
 </Project>

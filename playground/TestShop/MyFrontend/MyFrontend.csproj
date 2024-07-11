@@ -9,6 +9,7 @@
     <WarningsNotAsErrors>$(WarningsNotAsErrors);RZ10012;RZ10021</WarningsNotAsErrors>
     <!-- Razor tooling incorrectly reports this warning -->
     <NoWarn>$(NoWarn);RZ10021</NoWarn>
+    <UserSecretsId>00a421a9-7066-45f8-92b4-d95690bfa5f1</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>

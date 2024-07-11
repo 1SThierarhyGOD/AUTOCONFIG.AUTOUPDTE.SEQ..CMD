@@ -1,0 +1,29 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home";
+}
+
+@using Microsoft.AspNetCore.Identity
+
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+
+<div class="jumbotron">
+    <h1 class="display-4">Middleware Service Provider</h1>
+    <p class="lead">
+        This example demonstrates using the ComponentSpace SAML v2.0 library's authentication handler to enable SAML single sign-on
+        as the service provider.
+    </p>
+
+    @if (!SignInManager.IsSignedIn(User))
+    {
+        <form asp-area="Identity" asp-page="/Account/ExternalLogin" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post">
+            <div>
+                <p>
+                    <button type="submit" class="btn btn-primary btn-lg" name="provider" value="SAML">SSO to the Identity Provider</button>
+                </p>
+            </div>
+        </form>
+    }
+</div>

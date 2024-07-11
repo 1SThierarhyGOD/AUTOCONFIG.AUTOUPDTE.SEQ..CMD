@@ -1,0 +1,14 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home";
+}
+
+<div class="jumbotron">
+    <h1 class="display-4">Middleware Identity Provider</h1>
+    <p class="lead">
+        This example demonstrates using the ComponentSpace SAML v2.0 library's middleware to enable SAML single sign-on
+        as the identity provider.
+    </p>
+    <p><a asp-page-handler="InitiateSingleSignOn" class="btn btn-primary btn-lg">SSO to the Service Provider</a></p>
+</div>

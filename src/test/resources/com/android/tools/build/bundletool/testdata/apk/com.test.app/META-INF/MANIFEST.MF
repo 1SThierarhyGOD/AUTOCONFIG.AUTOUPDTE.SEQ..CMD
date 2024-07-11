@@ -1,0 +1,33 @@
+Manifest-Version: 1.0
+Created-By: 1.0 (Android)
+
+Name: AndroidManifest.xml
+SHA1-Digest: BJ0UTwzJ26+g0oS4Xnur2lhGh1w=
+
+Name: res/drawable-mdpi/icon.png
+SHA1-Digest: Z5vtkIcBWI0t4/EEmY56tuje96w=
+
+Name: res/layout/main.xml
+SHA1-Digest: BF80v13evuewj7fXoW3NsfxpDy0=
+
+Name: res/drawable-hdpi/icon.png
+SHA1-Digest: Rr8nCy8CnsLm5noM/s1rIwjGEhk=
+
+Name: res/drawable-ldpi/icon.png
+SHA1-Digest: egoSHFx7yRqRJvRf/YqCEvzyPcY=
+
+Name: resources.arsc
+SHA1-Digest: RaM3JEarT2buhkGlENFHtFB1kz4=
+
+Name: classes.dex
+SHA1-Digest: MnAOEt/sYJ6VqSvaJ73eZ+zWryM=
+
+Name: res/xml/automotive_app_desc.xml
+SHA1-Digest: XAoIa5IUJGFgJwErLZuGQPLSMvM=
+
+Name: res/drawable-hdpi/daydream_icon.png
+SHA1-Digest: ER79MryKqJUjDx20mzSg+fsvOXM=
+
+Name: res/drawable-hdpi/daydream_icon_background.png
+SHA1-Digest: Bi297TqE7picfOyoRP+4AIDWfng=
+

@@ -1,0 +1,19 @@
+﻿@page
+@model IdentityClient.Pages.ClaimsModel
+@{
+    ViewData["Title"] = "Claims";
+}
+
+<h1>Claims</h1>
+
+<p>
+    The following claims were returned by the authorization server.
+</p>
+
+<dl>
+    @foreach (var claim in User.Claims)
+    {
+        <dt>@claim.Type</dt>
+        <dd>@claim.Value</dd>
+    }
+</dl>

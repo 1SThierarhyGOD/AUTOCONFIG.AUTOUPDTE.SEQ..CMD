@@ -1,0 +1,32 @@
+[84112:13172:0712/211058.891:VERBOSE1:updater.cc(323)] Version: 128.0.6537.0, opt, 32 bits, command line: "C:\Program Files (x86)\Google\Update\GoogleUpdate.exe" "C:\Users\NTT\source\repos\1SThierarhyGOD\aspire\eng\test-configuration.json"
+[84112:13172:0712/211058.891:VERBOSE1:updater.cc(325)] OS version: 10.0.19045.4529, System uptime (seconds): 121795, parent pid: 17120
+[92988:93676:0712/211058.978:VERBOSE1:updater.cc(323)] Version: 128.0.6537.0, opt, 32 bits, command line: "C:\Program Files (x86)\Google\Update\GoogleUpdate.exe" --crash-handler --system "--database=C:\Program Files (x86)\Google\GoogleUpdater\128.0.6537.0\Crashpad" --url=https://clients2.google.com/cr/report --annotation=prod=Update4 --annotation=ver=128.0.6537.0 "--attachment=C:\Program Files (x86)\Google\GoogleUpdater\updater.log" --initial-client-data=0x2a0,0x2a4,0x2a8,0x27c,0x2ac,0xed2604,0xed2610,0xed261c
+[92988:93676:0712/211058.979:VERBOSE1:updater.cc(325)] OS version: 10.0.19045.4529, System uptime (seconds): 121795, parent pid: 84112
+[84112:13172:0712/211058.982:VERBOSE1:crash_reporter.cc(121)] Crash handler launched and ready.
+[84112:13172:0712/211058.983:ERROR:crash_client.cc(112)] Failed to fetch completed crash reports: 3
+[84112:13172:0712/211058.983:ERROR:crash_client.cc(128)] Failed to fetch pending crash reports: 3
+[84112:13172:0712/211058.983:VERBOSE2:update_usage_stats_task_win.cc(57)] No app enables usagestats.
+[84112:13172:0712/211058.983:VERBOSE2:update_usage_stats_task_win.cc(52)] usagestats enabled by app {8A69D345-D564-463C-AFF1-A69D9E530F96}
+[84112:13172:0712/211058.984:ERROR:file_io_win.cc(181)] CreateFile C:\Program Files (x86)\Google\GoogleUpdater\128.0.6537.0\Crashpad\settings.dat: Odmowa dostępu. (0x5)
+[84112:13172:0712/211058.985:ERROR:file_io_win.cc(181)] CreateFile C:\Program Files (x86)\Google\GoogleUpdater\128.0.6537.0\Crashpad\settings.dat: Odmowa dostępu. (0x5)
+[84112:13172:0712/211058.985:VERBOSE1:updater.cc(101)] Crash reporting initialized.
+[84112:13172:0712/211058.985:VERBOSE1:updater.cc(155)] IsUserAdmin: 0, IsUserNonElevatedAdmin: 1, IsUACOn: 1, IsElevatedWithUACOn: 0, LUA: 1
+[84112:13172:0712/211058.985:VERBOSE1:updater.cc(217)] Unknown command line switch.
+[84112:13172:0712/211058.986:VERBOSE1:updater.cc(330)] UpdaterMain (--) returned 9.
+[92988:93676:0712/211059.000:VERBOSE1:updater.cc(330)] UpdaterMain (--crash-handler) returned 0.
+[61680:105008:0712/215219.964:VERBOSE1:updater.cc(323)] Version: 128.0.6537.0, opt, 32 bits, command line: "C:\Program Files (x86)\Google\Update\GoogleUpdate.exe" "C:\Users\NTT\source\repos\1SThierarhyGOD\aspire\eng\test-configuration.json"
+[61680:105008:0712/215219.965:VERBOSE1:updater.cc(325)] OS version: 10.0.19045.4529, System uptime (seconds): 124276, parent pid: 17120
+[95624:95724:0712/215220.035:VERBOSE1:updater.cc(323)] Version: 128.0.6537.0, opt, 32 bits, command line: "C:\Program Files (x86)\Google\Update\GoogleUpdate.exe" --crash-handler --system "--database=C:\Program Files (x86)\Google\GoogleUpdater\128.0.6537.0\Crashpad" --url=https://clients2.google.com/cr/report --annotation=prod=Update4 --annotation=ver=128.0.6537.0 "--attachment=C:\Program Files (x86)\Google\GoogleUpdater\updater.log" --initial-client-data=0x2a0,0x2a4,0x2a8,0x12c,0x2ac,0x582604,0x582610,0x58261c
+[95624:95724:0712/215220.035:VERBOSE1:updater.cc(325)] OS version: 10.0.19045.4529, System uptime (seconds): 124276, parent pid: 61680
+[61680:105008:0712/215220.038:VERBOSE1:crash_reporter.cc(121)] Crash handler launched and ready.
+[61680:105008:0712/215220.039:ERROR:crash_client.cc(112)] Failed to fetch completed crash reports: 3
+[61680:105008:0712/215220.039:ERROR:crash_client.cc(128)] Failed to fetch pending crash reports: 3
+[61680:105008:0712/215220.039:VERBOSE2:update_usage_stats_task_win.cc(57)] No app enables usagestats.
+[61680:105008:0712/215220.039:VERBOSE2:update_usage_stats_task_win.cc(52)] usagestats enabled by app {8A69D345-D564-463C-AFF1-A69D9E530F96}
+[61680:105008:0712/215220.040:ERROR:file_io_win.cc(181)] CreateFile C:\Program Files (x86)\Google\GoogleUpdater\128.0.6537.0\Crashpad\settings.dat: Odmowa dostępu. (0x5)
+[61680:105008:0712/215220.041:ERROR:file_io_win.cc(181)] CreateFile C:\Program Files (x86)\Google\GoogleUpdater\128.0.6537.0\Crashpad\settings.dat: Odmowa dostępu. (0x5)
+[61680:105008:0712/215220.041:VERBOSE1:updater.cc(101)] Crash reporting initialized.
+[61680:105008:0712/215220.042:VERBOSE1:updater.cc(155)] IsUserAdmin: 0, IsUserNonElevatedAdmin: 1, IsUACOn: 1, IsElevatedWithUACOn: 0, LUA: 1
+[61680:105008:0712/215220.042:VERBOSE1:updater.cc(217)] Unknown command line switch.
+[61680:105008:0712/215220.042:VERBOSE1:updater.cc(330)] UpdaterMain (--) returned 9.
+[95624:95724:0712/215220.056:VERBOSE1:updater.cc(330)] UpdaterMain (--crash-handler) returned 0.
