@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Microsoft.Extensions.ServiceDiscovery.Yarp</name>
+    </assembly>
+    <members>
+        <member name="T:Microsoft.Extensions.ServiceDiscovery.Yarp.ServiceDiscoveryDestinationResolver">
+            <summary>
+            Implementation of <see cref="T:Yarp.ReverseProxy.ServiceDiscovery.IDestinationResolver"/> which resolves destinations using service discovery.
+            </summary>
+            <remarks>
+            Initializes a new <see cref="T:Microsoft.Extensions.ServiceDiscovery.Yarp.ServiceDiscoveryDestinationResolver"/> instance.
+            </remarks>
+            <param name="resolver">The endpoint resolver registry.</param>
+            <param name="options">The service discovery options.</param>
+        </member>
+        <member name="M:Microsoft.Extensions.ServiceDiscovery.Yarp.ServiceDiscoveryDestinationResolver.#ctor(Microsoft.Extensions.ServiceDiscovery.ServiceEndpointResolver,Microsoft.Extensions.Options.IOptions{Microsoft.Extensions.ServiceDiscovery.ServiceDiscoveryOptions})">
+            <summary>
+            Implementation of <see cref="T:Yarp.ReverseProxy.ServiceDiscovery.IDestinationResolver"/> which resolves destinations using service discovery.
+            </summary>
+            <remarks>
+            Initializes a new <see cref="T:Microsoft.Extensions.ServiceDiscovery.Yarp.ServiceDiscoveryDestinationResolver"/> instance.
+            </remarks>
+            <param name="resolver">The endpoint resolver registry.</param>
+            <param name="options">The service discovery options.</param>
+        </member>
+        <member name="M:Microsoft.Extensions.ServiceDiscovery.Yarp.ServiceDiscoveryDestinationResolver.ResolveDestinationsAsync(System.Collections.Generic.IReadOnlyDictionary{System.String,Yarp.ReverseProxy.Configuration.DestinationConfig},System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="T:Microsoft.Extensions.DependencyInjection.ServiceDiscoveryReverseProxyServiceCollectionExtensions">
+            <summary>
+            Extensions for <see cref="T:Microsoft.Extensions.DependencyInjection.IServiceCollection"/> used to register the ReverseProxy's components.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Extensions.DependencyInjection.ServiceDiscoveryReverseProxyServiceCollectionExtensions.AddServiceDiscoveryDestinationResolver(Microsoft.Extensions.DependencyInjection.IReverseProxyBuilder)">
+            <summary>
+            Provides a <see cref="T:Yarp.ReverseProxy.ServiceDiscovery.IDestinationResolver"/> implementation which uses service discovery to resolve destinations.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Extensions.DependencyInjection.ServiceDiscoveryReverseProxyServiceCollectionExtensions.AddHttpForwarderWithServiceDiscovery(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            Adds the <see cref="T:Yarp.ReverseProxy.Forwarder.IHttpForwarder"/> with service discovery support.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Extensions.DependencyInjection.ServiceDiscoveryReverseProxyServiceCollectionExtensions.AddServiceDiscoveryForwarderFactory(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            Provides a <see cref="T:Yarp.ReverseProxy.Forwarder.IForwarderHttpClientFactory"/> implementation which uses service discovery to resolve service names.
+            </summary>
+        </member>
+    </members>
+</doc>

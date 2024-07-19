@@ -1,0 +1,430 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Microsoft.Extensions.ServiceDiscovery</name>
+    </assembly>
+    <members>
+        <member name="T:Microsoft.Extensions.ServiceDiscovery.ConfigurationServiceEndpointProviderOptions">
+            <summary>
+            Options for <see cref="T:Microsoft.Extensions.ServiceDiscovery.Configuration.ConfigurationServiceEndpointProvider"/>.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Extensions.ServiceDiscovery.ConfigurationServiceEndpointProviderOptions.SectionName">
+            <summary>
+            The name of the configuration section which contains service endpoints. Defaults to <c>"Services"</c>.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Extensions.ServiceDiscovery.ConfigurationServiceEndpointProviderOptions.ShouldApplyHostNameMetadata">
+            <summary>
+            Gets or sets a delegate used to determine whether to apply host name metadata to each resolved endpoint. Defaults to a delegate which returns <c>false</c>.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Extensions.ServiceDiscovery.Configuration.ConfigurationServiceEndpointProvider">
+            <summary>
+            A service endpoint provider that uses configuration to resolve resolved.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Extensions.ServiceDiscovery.Configuration.ConfigurationServiceEndpointProvider.#ctor(Microsoft.Extensions.ServiceDiscovery.ServiceEndpointQuery,Microsoft.Extensions.Configuration.IConfiguration,Microsoft.Extensions.Logging.ILogger{Microsoft.Extensions.ServiceDiscovery.Configuration.ConfigurationServiceEndpointProvider},Microsoft.Extensions.Options.IOptions{Microsoft.Extensions.ServiceDiscovery.ConfigurationServiceEndpointProviderOptions},Microsoft.Extensions.Options.IOptions{Microsoft.Extensions.ServiceDiscovery.ServiceDiscoveryOptions})">
+            <summary>
+            Initializes a new <see cref="T:Microsoft.Extensions.ServiceDiscovery.Configuration.ConfigurationServiceEndpointProvider"/> instance.
+            </summary>
+            <param name="query">The query.</param>
+            <param name="configuration">The configuration.</param>
+            <param name="logger">The logger.</param>
+            <param name="options">Configuration provider options.</param>
+            <param name="serviceDiscoveryOptions">Service discovery options.</param>
+        </member>
+        <member name="M:Microsoft.Extensions.ServiceDiscovery.Configuration.ConfigurationServiceEndpointProvider.DisposeAsync">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Extensions.ServiceDiscovery.Configuration.ConfigurationServiceEndpointProvider.PopulateAsync(Microsoft.Extensions.ServiceDiscovery.IServiceEndpointBuilder,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="T:Microsoft.Extensions.ServiceDiscovery.Configuration.ConfigurationServiceEndpointProviderFactory">
+            <summary>
+            <see cref="T:Microsoft.Extensions.ServiceDiscovery.IServiceEndpointProviderFactory"/> implementation that resolves services using <see cref="T:Microsoft.Extensions.Configuration.IConfiguration"/>.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Extensions.ServiceDiscovery.Configuration.ConfigurationServiceEndpointProviderFactory.#ctor(Microsoft.Extensions.Configuration.IConfiguration,Microsoft.Extensions.Options.IOptions{Microsoft.Extensions.ServiceDiscovery.ConfigurationServiceEndpointProviderOptions},Microsoft.Extensions.Options.IOptions{Microsoft.Extensions.ServiceDiscovery.ServiceDiscoveryOptions},Microsoft.Extensions.Logging.ILogger{Microsoft.Extensions.ServiceDiscovery.Configuration.ConfigurationServiceEndpointProvider})">
+            <summary>
+            <see cref="T:Microsoft.Extensions.ServiceDiscovery.IServiceEndpointProviderFactory"/> implementation that resolves services using <see cref="T:Microsoft.Extensions.Configuration.IConfiguration"/>.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Extensions.ServiceDiscovery.Configuration.ConfigurationServiceEndpointProviderFactory.TryCreateProvider(Microsoft.Extensions.ServiceDiscovery.ServiceEndpointQuery,Microsoft.Extensions.ServiceDiscovery.IServiceEndpointProvider@)">
+            <inheritdoc/>
+        </member>
+        <member name="T:Microsoft.Extensions.ServiceDiscovery.Http.HttpServiceEndpointResolver">
+            <summary>
+            Resolves endpoints for HTTP requests.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Extensions.ServiceDiscovery.Http.HttpServiceEndpointResolver.#ctor(Microsoft.Extensions.ServiceDiscovery.ServiceEndpointWatcherFactory,System.IServiceProvider,System.TimeProvider)">
+            <summary>
+            Resolves endpoints for HTTP requests.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Extensions.ServiceDiscovery.Http.HttpServiceEndpointResolver.GetEndpointAsync(System.Net.Http.HttpRequestMessage,System.Threading.CancellationToken)">
+            <summary>
+            Resolves and returns a service endpoint for the specified request.
+            </summary>
+            <param name="request">The request message.</param>
+            <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken"/>.</param>
+            <returns>The resolved service endpoint.</returns>
+            <exception cref="T:System.InvalidOperationException">The request had no <see cref="P:System.Net.Http.HttpRequestMessage.RequestUri"/> set or a suitable endpoint could not be found.</exception>
+        </member>
+        <member name="M:Microsoft.Extensions.ServiceDiscovery.Http.HttpServiceEndpointResolver.DisposeAsync">
+            <inheritdoc/>
+        </member>
+        <member name="T:Microsoft.Extensions.ServiceDiscovery.Http.IServiceDiscoveryHttpMessageHandlerFactory">
+            <summary>
+            Factory which creates <see cref="T:System.Net.Http.HttpMessageHandler"/> instances which resolve endpoints using service discovery
+            before delegating to a provided handler.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Extensions.ServiceDiscovery.Http.IServiceDiscoveryHttpMessageHandlerFactory.CreateHandler(System.Net.Http.HttpMessageHandler)">
+            <summary>
+            Creates an <see cref="T:System.Net.Http.HttpMessageHandler"/> instance which resolve endpoints using service discovery before
+            delegating to a provided handler.
+            </summary>
+            <param name="handler">The handler to delegate to.</param>
+            <returns>The new <see cref="T:System.Net.Http.HttpMessageHandler"/>.</returns>
+        </member>
+        <member name="T:Microsoft.Extensions.ServiceDiscovery.Http.ResolvingHttpClientHandler">
+            <summary>
+            <see cref="T:System.Net.Http.HttpClientHandler"/> which resolves endpoints using service discovery.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Extensions.ServiceDiscovery.Http.ResolvingHttpClientHandler.#ctor(Microsoft.Extensions.ServiceDiscovery.Http.HttpServiceEndpointResolver,Microsoft.Extensions.Options.IOptions{Microsoft.Extensions.ServiceDiscovery.ServiceDiscoveryOptions})">
+            <summary>
+            <see cref="T:System.Net.Http.HttpClientHandler"/> which resolves endpoints using service discovery.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Extensions.ServiceDiscovery.Http.ResolvingHttpClientHandler.SendAsync(System.Net.Http.HttpRequestMessage,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="T:Microsoft.Extensions.ServiceDiscovery.Http.ResolvingHttpDelegatingHandler">
+            <summary>
+            HTTP message handler which resolves endpoints using service discovery.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Extensions.ServiceDiscovery.Http.ResolvingHttpDelegatingHandler.#ctor(Microsoft.Extensions.ServiceDiscovery.Http.HttpServiceEndpointResolver,Microsoft.Extensions.Options.IOptions{Microsoft.Extensions.ServiceDiscovery.ServiceDiscoveryOptions})">
+            <summary>
+            Initializes a new <see cref="T:Microsoft.Extensions.ServiceDiscovery.Http.ResolvingHttpDelegatingHandler"/> instance.
+            </summary>
+            <param name="resolver">The endpoint resolver.</param>
+            <param name="options">The service discovery options.</param>
+        </member>
+        <member name="M:Microsoft.Extensions.ServiceDiscovery.Http.ResolvingHttpDelegatingHandler.#ctor(Microsoft.Extensions.ServiceDiscovery.Http.HttpServiceEndpointResolver,Microsoft.Extensions.Options.IOptions{Microsoft.Extensions.ServiceDiscovery.ServiceDiscoveryOptions},System.Net.Http.HttpMessageHandler)">
+            <summary>
+            Initializes a new <see cref="T:Microsoft.Extensions.ServiceDiscovery.Http.ResolvingHttpDelegatingHandler"/> instance.
+            </summary>
+            <param name="resolver">The endpoint resolver.</param>
+            <param name="options">The service discovery options.</param>
+            <param name="innerHandler">The inner handler.</param>
+        </member>
+        <member name="M:Microsoft.Extensions.ServiceDiscovery.Http.ResolvingHttpDelegatingHandler.SendAsync(System.Net.Http.HttpRequestMessage,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="T:Microsoft.Extensions.ServiceDiscovery.Internal.ServiceEndpointResolverResult">
+            <summary>
+            Represents the result of service endpoint resolution.
+            </summary>
+            <param name="endpointSource">The endpoint collection.</param>
+            <param name="exception">The exception which occurred during resolution.</param>
+        </member>
+        <member name="M:Microsoft.Extensions.ServiceDiscovery.Internal.ServiceEndpointResolverResult.#ctor(Microsoft.Extensions.ServiceDiscovery.ServiceEndpointSource,System.Exception)">
+            <summary>
+            Represents the result of service endpoint resolution.
+            </summary>
+            <param name="endpointSource">The endpoint collection.</param>
+            <param name="exception">The exception which occurred during resolution.</param>
+        </member>
+        <member name="P:Microsoft.Extensions.ServiceDiscovery.Internal.ServiceEndpointResolverResult.Exception">
+            <summary>
+            Gets the exception which occurred during resolution.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Extensions.ServiceDiscovery.Internal.ServiceEndpointResolverResult.ResolvedSuccessfully">
+            <summary>
+            Gets a value indicating whether resolution completed successfully.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Extensions.ServiceDiscovery.Internal.ServiceEndpointResolverResult.EndpointSource">
+            <summary>
+            Gets the endpoints.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Extensions.ServiceDiscovery.LoadBalancing.IServiceEndpointSelector">
+            <summary>
+            Selects endpoints from a collection of endpoints.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Extensions.ServiceDiscovery.LoadBalancing.IServiceEndpointSelector.SetEndpoints(Microsoft.Extensions.ServiceDiscovery.ServiceEndpointSource)">
+            <summary>
+            Sets the collection of endpoints which this instance will select from.
+            </summary>
+            <param name="endpoints">The collection of endpoints to select from.</param>
+        </member>
+        <member name="M:Microsoft.Extensions.ServiceDiscovery.LoadBalancing.IServiceEndpointSelector.GetEndpoint(System.Object)">
+            <summary>
+            Selects an endpoints from the collection provided by the most recent call to <see cref="M:Microsoft.Extensions.ServiceDiscovery.LoadBalancing.IServiceEndpointSelector.SetEndpoints(Microsoft.Extensions.ServiceDiscovery.ServiceEndpointSource)"/>.
+            </summary>
+            <param name="context">The context.</param>
+            <returns>An endpoint.</returns>
+        </member>
+        <member name="T:Microsoft.Extensions.ServiceDiscovery.LoadBalancing.RoundRobinServiceEndpointSelector">
+            <summary>
+            Selects endpoints by iterating through the list of endpoints in a round-robin fashion.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Extensions.ServiceDiscovery.LoadBalancing.RoundRobinServiceEndpointSelector.SetEndpoints(Microsoft.Extensions.ServiceDiscovery.ServiceEndpointSource)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Extensions.ServiceDiscovery.LoadBalancing.RoundRobinServiceEndpointSelector.GetEndpoint(System.Object)">
+            <inheritdoc/>
+        </member>
+        <member name="T:Microsoft.Extensions.ServiceDiscovery.PassThrough.PassThroughServiceEndpointProvider">
+            <summary>
+            Service endpoint provider which passes through the provided value.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Extensions.ServiceDiscovery.PassThrough.PassThroughServiceEndpointProvider.#ctor(Microsoft.Extensions.Logging.ILogger,System.String,System.Net.EndPoint)">
+            <summary>
+            Service endpoint provider which passes through the provided value.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Extensions.ServiceDiscovery.PassThrough.PassThroughServiceEndpointProviderFactory">
+            <summary>
+            Service endpoint provider factory which creates pass-through providers.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Extensions.ServiceDiscovery.PassThrough.PassThroughServiceEndpointProviderFactory.#ctor(Microsoft.Extensions.Logging.ILogger{Microsoft.Extensions.ServiceDiscovery.PassThrough.PassThroughServiceEndpointProvider})">
+            <summary>
+            Service endpoint provider factory which creates pass-through providers.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Extensions.ServiceDiscovery.PassThrough.PassThroughServiceEndpointProviderFactory.TryCreateProvider(Microsoft.Extensions.ServiceDiscovery.ServiceEndpointQuery,Microsoft.Extensions.ServiceDiscovery.IServiceEndpointProvider@)">
+            <inheritdoc/>
+        </member>
+        <member name="T:Microsoft.Extensions.ServiceDiscovery.ServiceDiscoveryOptions">
+            <summary>
+            Options for service endpoint resolution.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Extensions.ServiceDiscovery.ServiceDiscoveryOptions.AllowAllSchemes">
+            <summary>
+            Gets or sets a value indicating whether all URI schemes for URIs resolved by the service discovery system are allowed.
+            If this value is <see langword="true"/>, all URI schemes are allowed.
+            If this value is <see langword="false"/>, only the schemes specified in <see cref="P:Microsoft.Extensions.ServiceDiscovery.ServiceDiscoveryOptions.AllowedSchemes"/> are allowed.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Extensions.ServiceDiscovery.ServiceDiscoveryOptions.RefreshPeriod">
+            <summary>
+            Gets or sets the period between polling attempts for providers which do not support refresh notifications via <see cref="P:Microsoft.Extensions.Primitives.IChangeToken.ActiveChangeCallbacks"/>.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Extensions.ServiceDiscovery.ServiceDiscoveryOptions.AllowedSchemes">
+            <summary>
+            Gets or sets the collection of allowed URI schemes for URIs resolved by the service discovery system when multiple schemes are specified, for example "https+http://_endpoint.service".
+            </summary>
+            <remarks>
+            When <see cref="P:Microsoft.Extensions.ServiceDiscovery.ServiceDiscoveryOptions.AllowAllSchemes"/> is <see langword="true"/>, this property is ignored.
+            </remarks>
+        </member>
+        <member name="T:Microsoft.Extensions.ServiceDiscovery.ServiceEndpointBuilder">
+            <summary>
+            A mutable collection of service endpoints. 
+            </summary>
+        </member>
+        <member name="M:Microsoft.Extensions.ServiceDiscovery.ServiceEndpointBuilder.AddChangeToken(Microsoft.Extensions.Primitives.IChangeToken)">
+            <summary>
+            Adds a change token.
+            </summary>
+            <param name="changeToken">The change token.</param>
+        </member>
+        <member name="P:Microsoft.Extensions.ServiceDiscovery.ServiceEndpointBuilder.Features">
+            <summary>
+            Gets the feature collection.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Extensions.ServiceDiscovery.ServiceEndpointBuilder.Endpoints">
+            <summary>
+            Gets the endpoints.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Extensions.ServiceDiscovery.ServiceEndpointBuilder.Build">
+            <summary>
+            Creates a <see cref="T:Microsoft.Extensions.ServiceDiscovery.ServiceEndpointSource"/> from the provided instance.
+            </summary>
+            <returns>The service endpoint source.</returns>
+        </member>
+        <member name="T:Microsoft.Extensions.ServiceDiscovery.ServiceEndpointResolver">
+            <summary>
+            Resolves service names to collections of endpoints.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Extensions.ServiceDiscovery.ServiceEndpointResolver.#ctor(Microsoft.Extensions.ServiceDiscovery.ServiceEndpointWatcherFactory,System.TimeProvider)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.Extensions.ServiceDiscovery.ServiceEndpointResolver"/> class.
+            </summary>
+            <param name="watcherFactory">The watcher factory.</param>
+            <param name="timeProvider">The time provider.</param>
+        </member>
+        <member name="M:Microsoft.Extensions.ServiceDiscovery.ServiceEndpointResolver.GetEndpointsAsync(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Resolves and returns service endpoints for the specified service.
+            </summary>
+            <param name="serviceName">The service name.</param>
+            <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken"/>.</param>
+            <returns>The resolved service endpoints.</returns>
+        </member>
+        <member name="M:Microsoft.Extensions.ServiceDiscovery.ServiceEndpointResolver.DisposeAsync">
+            <inheritdoc/>
+        </member>
+        <member name="T:Microsoft.Extensions.ServiceDiscovery.ServiceEndpointWatcher">
+            <summary>
+            Watches for updates to the collection of resolved endpoints for a specified service.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Extensions.ServiceDiscovery.ServiceEndpointWatcher.#ctor(Microsoft.Extensions.ServiceDiscovery.IServiceEndpointProvider[],Microsoft.Extensions.Logging.ILogger,System.String,System.TimeProvider,Microsoft.Extensions.Options.IOptions{Microsoft.Extensions.ServiceDiscovery.ServiceDiscoveryOptions})">
+            <summary>
+            Watches for updates to the collection of resolved endpoints for a specified service.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Extensions.ServiceDiscovery.ServiceEndpointWatcher.ServiceName">
+            <summary>
+            Gets the service name.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Extensions.ServiceDiscovery.ServiceEndpointWatcher.OnEndpointsUpdated">
+            <summary>
+            Gets or sets the action called when endpoints are updated.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Extensions.ServiceDiscovery.ServiceEndpointWatcher.Start">
+            <summary>
+            Starts the endpoint resolver.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Extensions.ServiceDiscovery.ServiceEndpointWatcher.GetEndpointsAsync(System.Threading.CancellationToken)">
+            <summary>
+            Returns a collection of resolved endpoints for the service.
+            </summary>
+            <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken"/>.</param>
+            <returns>A collection of resolved endpoints for the service.</returns>
+        </member>
+        <member name="M:Microsoft.Extensions.ServiceDiscovery.ServiceEndpointWatcher.DisposeAsync">
+            <inheritdoc/>
+        </member>
+        <member name="T:Microsoft.Extensions.ServiceDiscovery.ServiceEndpointWatcherFactory">
+            <summary>
+            Creates service endpoint watchers.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Extensions.ServiceDiscovery.ServiceEndpointWatcherFactory.#ctor(System.Collections.Generic.IEnumerable{Microsoft.Extensions.ServiceDiscovery.IServiceEndpointProviderFactory},Microsoft.Extensions.Logging.ILogger{Microsoft.Extensions.ServiceDiscovery.ServiceEndpointWatcher},Microsoft.Extensions.Options.IOptions{Microsoft.Extensions.ServiceDiscovery.ServiceDiscoveryOptions},System.TimeProvider)">
+            <summary>
+            Creates service endpoint watchers.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Extensions.ServiceDiscovery.ServiceEndpointWatcherFactory.CreateWatcher(System.String)">
+            <summary>
+            Creates a service endpoint watcher for the provided service name.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Extensions.ServiceDiscovery.UriEndPoint">
+            <summary>
+            An endpoint represented by a <see cref="T:System.Uri"/>.
+            </summary>
+            <param name="uri">The <see cref="T:System.Uri"/>.</param>
+        </member>
+        <member name="M:Microsoft.Extensions.ServiceDiscovery.UriEndPoint.#ctor(System.Uri)">
+            <summary>
+            An endpoint represented by a <see cref="T:System.Uri"/>.
+            </summary>
+            <param name="uri">The <see cref="T:System.Uri"/>.</param>
+        </member>
+        <member name="P:Microsoft.Extensions.ServiceDiscovery.UriEndPoint.Uri">
+            <summary>
+            Gets the <see cref="T:System.Uri"/> associated with this endpoint.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Extensions.ServiceDiscovery.UriEndPoint.Equals(System.Object)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Extensions.ServiceDiscovery.UriEndPoint.GetHashCode">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.Extensions.ServiceDiscovery.UriEndPoint.ToString">
+            <inheritdoc/>
+        </member>
+        <member name="T:Microsoft.Extensions.DependencyInjection.ServiceDiscoveryHttpClientBuilderExtensions">
+            <summary>
+            Extensions for configuring <see cref="T:Microsoft.Extensions.DependencyInjection.IHttpClientBuilder"/> with service discovery.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Extensions.DependencyInjection.ServiceDiscoveryHttpClientBuilderExtensions.AddServiceDiscovery(Microsoft.Extensions.DependencyInjection.IHttpClientBuilder)">
+            <summary>
+            Adds service discovery to the <see cref="T:Microsoft.Extensions.DependencyInjection.IHttpClientBuilder"/>.
+            </summary>
+            <param name="httpClientBuilder">The builder.</param>
+            <returns>The builder.</returns>
+        </member>
+        <member name="T:Microsoft.Extensions.DependencyInjection.ServiceDiscoveryServiceCollectionExtensions">
+            <summary>
+            Extension methods for configuring service discovery.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Extensions.DependencyInjection.ServiceDiscoveryServiceCollectionExtensions.AddServiceDiscovery(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            Adds the core service discovery services and configures defaults.
+            </summary>
+            <param name="services">The service collection.</param>
+            <returns>The service collection.</returns>
+        </member>
+        <member name="M:Microsoft.Extensions.DependencyInjection.ServiceDiscoveryServiceCollectionExtensions.AddServiceDiscovery(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Action{Microsoft.Extensions.ServiceDiscovery.ServiceDiscoveryOptions})">
+            <summary>
+            Adds the core service discovery services and configures defaults.
+            </summary>
+            <param name="services">The service collection.</param>
+            <param name="configureOptions">The delegate used to configure service discovery options.</param>
+            <returns>The service collection.</returns>
+        </member>
+        <member name="M:Microsoft.Extensions.DependencyInjection.ServiceDiscoveryServiceCollectionExtensions.AddServiceDiscoveryCore(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            Adds the core service discovery services.
+            </summary>
+            <param name="services">The service collection.</param>
+            <returns>The service collection.</returns>
+        </member>
+        <member name="M:Microsoft.Extensions.DependencyInjection.ServiceDiscoveryServiceCollectionExtensions.AddServiceDiscoveryCore(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Action{Microsoft.Extensions.ServiceDiscovery.ServiceDiscoveryOptions})">
+            <summary>
+            Adds the core service discovery services.
+            </summary>
+            <param name="services">The service collection.</param>
+            <param name="configureOptions">The delegate used to configure service discovery options.</param>
+            <returns>The service collection.</returns>
+        </member>
+        <member name="M:Microsoft.Extensions.DependencyInjection.ServiceDiscoveryServiceCollectionExtensions.AddConfigurationServiceEndpointProvider(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            Configures a service discovery endpoint provider which uses <see cref="T:Microsoft.Extensions.Configuration.IConfiguration"/> to resolve endpoints.
+            </summary>
+            <param name="services">The service collection.</param>
+            <returns>The service collection.</returns>
+        </member>
+        <member name="M:Microsoft.Extensions.DependencyInjection.ServiceDiscoveryServiceCollectionExtensions.AddConfigurationServiceEndpointProvider(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Action{Microsoft.Extensions.ServiceDiscovery.ConfigurationServiceEndpointProviderOptions})">
+            <summary>
+            Configures a service discovery endpoint provider which uses <see cref="T:Microsoft.Extensions.Configuration.IConfiguration"/> to resolve endpoints.
+            </summary>
+            <param name="configureOptions">The delegate used to configure the provider.</param>
+            <param name="services">The service collection.</param>
+            <returns>The service collection.</returns>
+        </member>
+        <member name="M:Microsoft.Extensions.DependencyInjection.ServiceDiscoveryServiceCollectionExtensions.AddPassThroughServiceEndpointProvider(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            Configures a service discovery endpoint provider which passes through the input without performing resolution.
+            </summary>
+            <param name="services">The service collection.</param>
+            <returns>The service collection.</returns>
+        </member>
+    </members>
+</doc>

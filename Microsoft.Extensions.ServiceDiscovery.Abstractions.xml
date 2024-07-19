@@ -1,0 +1,159 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Microsoft.Extensions.ServiceDiscovery.Abstractions</name>
+    </assembly>
+    <members>
+        <member name="T:Microsoft.Extensions.ServiceDiscovery.IHostNameFeature">
+            <summary>
+            Exposes the host name of the end point.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Extensions.ServiceDiscovery.IHostNameFeature.HostName">
+            <summary>
+            Gets the host name of the end point.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Extensions.ServiceDiscovery.IServiceEndpointBuilder">
+            <summary>
+            Builder to create a <see cref="T:Microsoft.Extensions.ServiceDiscovery.ServiceEndpointSource"/> instances.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Extensions.ServiceDiscovery.IServiceEndpointBuilder.Endpoints">
+            <summary>
+            Gets the endpoints.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Extensions.ServiceDiscovery.IServiceEndpointBuilder.Features">
+            <summary>
+            Gets the feature collection.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Extensions.ServiceDiscovery.IServiceEndpointBuilder.AddChangeToken(Microsoft.Extensions.Primitives.IChangeToken)">
+            <summary>
+            Adds a change token to the resulting <see cref="T:Microsoft.Extensions.ServiceDiscovery.ServiceEndpointSource"/>.
+            </summary>
+            <param name="changeToken">The change token.</param>
+        </member>
+        <member name="T:Microsoft.Extensions.ServiceDiscovery.IServiceEndpointProvider">
+            <summary>
+            Provides details about a service's endpoints.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Extensions.ServiceDiscovery.IServiceEndpointProvider.PopulateAsync(Microsoft.Extensions.ServiceDiscovery.IServiceEndpointBuilder,System.Threading.CancellationToken)">
+            <summary>
+            Resolves the endpoints for the service.
+            </summary>
+            <param name="endpoints">The endpoint collection, which resolved endpoints will be added to.</param>
+            <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+            <returns>The resolution status.</returns>
+        </member>
+        <member name="T:Microsoft.Extensions.ServiceDiscovery.IServiceEndpointProviderFactory">
+            <summary>
+            Creates <see cref="T:Microsoft.Extensions.ServiceDiscovery.IServiceEndpointProvider"/> instances.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Extensions.ServiceDiscovery.IServiceEndpointProviderFactory.TryCreateProvider(Microsoft.Extensions.ServiceDiscovery.ServiceEndpointQuery,Microsoft.Extensions.ServiceDiscovery.IServiceEndpointProvider@)">
+            <summary>
+            Tries to create an <see cref="T:Microsoft.Extensions.ServiceDiscovery.IServiceEndpointProvider"/> instance for the specified <paramref name="query"/>.
+            </summary>
+            <param name="query">The service to create the provider for.</param>
+            <param name="provider">The provider.</param>
+            <returns><see langword="true"/> if the provider was created, <see langword="false"/> otherwise.</returns>
+        </member>
+        <member name="T:Microsoft.Extensions.ServiceDiscovery.ServiceEndpoint">
+            <summary>
+            Represents an endpoint for a service.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Extensions.ServiceDiscovery.ServiceEndpoint.EndPoint">
+            <summary>
+            Gets the endpoint.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Extensions.ServiceDiscovery.ServiceEndpoint.Features">
+            <summary>
+            Gets the collection of endpoint features.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Extensions.ServiceDiscovery.ServiceEndpoint.Create(System.Net.EndPoint,Microsoft.AspNetCore.Http.Features.IFeatureCollection)">
+            <summary>
+            Creates a new <see cref="T:Microsoft.Extensions.ServiceDiscovery.ServiceEndpoint"/>.
+            </summary>
+            <param name="endPoint">The endpoint being represented.</param>
+            <param name="features">Features of the endpoint.</param>
+            <returns>A newly initialized <see cref="T:Microsoft.Extensions.ServiceDiscovery.ServiceEndpoint"/>.</returns>
+        </member>
+        <member name="T:Microsoft.Extensions.ServiceDiscovery.ServiceEndpointQuery">
+            <summary>
+            Describes a query for endpoints of a service.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Extensions.ServiceDiscovery.ServiceEndpointQuery.#ctor(System.String,System.String[],System.String,System.String)">
+            <summary>
+            Initializes a new <see cref="T:Microsoft.Extensions.ServiceDiscovery.ServiceEndpointQuery"/> instance.
+            </summary>
+            <param name="originalString">The string which the query was constructed from.</param>
+            <param name="includedSchemes">The ordered list of included URI schemes.</param>
+            <param name="serviceName">The service name.</param>
+            <param name="endpointName">The optional endpoint name.</param>
+        </member>
+        <member name="M:Microsoft.Extensions.ServiceDiscovery.ServiceEndpointQuery.TryParse(System.String,Microsoft.Extensions.ServiceDiscovery.ServiceEndpointQuery@)">
+            <summary>
+            Tries to parse the provided input as a service endpoint query.
+            </summary>
+            <param name="input">The value to parse.</param>
+            <param name="query">The resulting query.</param>
+            <returns><see langword="true"/> if the value was successfully parsed; otherwise <see langword="false"/>.</returns>
+        </member>
+        <member name="P:Microsoft.Extensions.ServiceDiscovery.ServiceEndpointQuery.IncludedSchemes">
+            <summary>
+            Gets the ordered list of included URI schemes.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Extensions.ServiceDiscovery.ServiceEndpointQuery.EndpointName">
+            <summary>
+            Gets the endpoint name, or <see langword="null"/> if no endpoint name is specified.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Extensions.ServiceDiscovery.ServiceEndpointQuery.ServiceName">
+            <summary>
+            Gets the service name.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Extensions.ServiceDiscovery.ServiceEndpointQuery.ToString">
+            <inheritdoc/>
+        </member>
+        <member name="T:Microsoft.Extensions.ServiceDiscovery.ServiceEndpointSource">
+            <summary>
+            Represents a collection of service endpoints.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Extensions.ServiceDiscovery.ServiceEndpointSource.#ctor(System.Collections.Generic.List{Microsoft.Extensions.ServiceDiscovery.ServiceEndpoint},Microsoft.Extensions.Primitives.IChangeToken,Microsoft.AspNetCore.Http.Features.IFeatureCollection)">
+            <summary>
+            Initializes a new <see cref="T:Microsoft.Extensions.ServiceDiscovery.ServiceEndpointSource"/> instance.
+            </summary>
+            <param name="endpoints">The endpoints.</param>
+            <param name="changeToken">The change token.</param>
+            <param name="features">The feature collection.</param>
+        </member>
+        <member name="P:Microsoft.Extensions.ServiceDiscovery.ServiceEndpointSource.Endpoints">
+            <summary>
+            Gets the endpoints.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Extensions.ServiceDiscovery.ServiceEndpointSource.ChangeToken">
+            <summary>
+            Gets the change token which indicates when this collection should be refreshed.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Extensions.ServiceDiscovery.ServiceEndpointSource.Features">
+            <summary>
+            Gets the feature collection.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Extensions.ServiceDiscovery.ServiceEndpointSource.ToString">
+            <inheritdoc/>
+        </member>
+    </members>
+</doc>
