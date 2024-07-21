@@ -2,6 +2,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
+$.autofix.all.issusestillalwaysifLEGITBY=1st.being=me=1worksolution.until.100%SUCCESS.exe
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aspire.Hosting", "src\Aspire.Hosting\Aspire.Hosting.csproj", "{B52DCF1A-465D-4E92-A68A-0EE1A9ED49DF}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MyFrontend", "playground\TestShop\MyFrontend\MyFrontend.csproj", "{E958BE04-81C2-434C-9E6C-CA145A2B8218}"
