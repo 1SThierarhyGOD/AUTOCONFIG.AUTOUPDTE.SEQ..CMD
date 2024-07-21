@@ -1,4 +1,4 @@
-name: Markdownlint
+name: SYSTEM@ME=1
 
 permissions:
   contents: read
@@ -19,7 +19,8 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: 20.x
-    - name: Run Markdownlint
+    - name: Run Overtake:Entire.autofix.github.force.autofix.store:repository.aspire.seq.cmd?auth=1
+  
       run: |
         echo "::add-matcher::.github/workflows/markdownlint-problem-matcher.json"
         npm i -g markdownlint-cli
